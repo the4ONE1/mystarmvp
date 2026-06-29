@@ -7,8 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { PhotoUpload } from '@/components/PhotoUpload';
 import { PersonalizationForm } from '@/components/PersonalizationForm';
-import { ArrowLeft, Camera, Edit3, ShoppingCart, Sparkles, Save } from 'lucide-react';
-import { useToast } from '@/components/ui/use-toast';
+import { ArrowLeft, Camera, Edit3, ShoppingCart, Sparkles } from 'lucide-react';
 
 export default function CreateStoryPage() {
   const router = useRouter();
