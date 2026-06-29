@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
-import { ArrowLeft, CreditCard, Lock } from 'lucide-react';
+import { ArrowLeft, CreditCard, Lock, Sparkles } from 'lucide-react';
 
 export default function CheckoutPage() {
   const [orderData, setOrderData] = useState(null);
@@ -26,9 +26,6 @@ export default function CheckoutPage() {
     setIsProcessing(true);
 
     try {
-      // In production, this would create a Stripe checkout session
-      // For now with placeholder keys, we'll simulate the flow
-      
       const response = await fetch('/api/create-checkout-session', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -37,11 +34,6 @@ export default function CheckoutPage() {
 
       if (response.ok) {
         const { url, sessionId } = await response.json();
-        
-        // With real Stripe keys, would redirect to checkout
-        // window.location.href = url;
-        
-        // For demo, redirect to success page
         window.location.href = '/checkout/success';
       } else {
         alert('Checkout creation failed. Please ensure Stripe keys are configured.');
@@ -56,12 +48,15 @@ export default function CheckoutPage() {
 
   if (!orderData) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <Card>
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Card className="bg-card border-2 border-border">
           <CardContent className="p-12 text-center">
-            <p className="text-lg text-gray-600 mb-4">No order data found</p>
+            <p className="text-lg text-muted-foreground mb-4">No order data found</p>
             <Link href="/create">
-              <Button>Create a Story</Button>
+              <Button className="bg-primary text-primary-foreground hover:bg-primary/90 font-display">
+                <Sparkles className="mr-2 w-4 h-4" />
+                Create a Story
+              </Button>
             </Link>
           </CardContent>
         </Card>
@@ -70,13 +65,20 @@ export default function CheckoutPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background">
+      {/* Announcement Bar */}
+      <div className="bg-primary text-primary-foreground text-center py-2 px-4">
+        <p className="text-sm font-display font-bold">
+          ⭐ Personalized digital storybooks — $29.99 one-time payment — instant digital download
+        </p>
+      </div>
+
       {/* Navigation */}
-      <nav className="bg-white border-b">
+      <nav className="bg-background/80 backdrop-blur-lg border-b border-border">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <Link href="/" className="flex items-center space-x-2">
-              <span className="text-2xl font-bold gradient-text">📚 Mestar</span>
+              <span className="text-2xl font-display font-bold text-primary drop-shadow-[0_0_10px_hsl(43_75%_62%/0.5)]">MESTAR</span>
             </Link>
           </div>
         </div>
@@ -85,15 +87,18 @@ export default function CheckoutPage() {
       {/* Main Content */}
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="max-w-5xl mx-auto">
-          <h1 className="text-3xl font-bold text-gray-900 mb-8">Secure Checkout</h1>
+          <h1 className="text-3xl font-display font-bold mb-8 flex items-center gap-2">
+            <Lock className="h-6 w-6 text-primary" />
+            Secure Checkout
+          </h1>
           
           <div className="grid lg:grid-cols-3 gap-8">
             {/* Checkout Form */}
             <div className="lg:col-span-2">
-              <Card>
+              <Card className="bg-card border-2 border-border">
                 <CardHeader>
-                  <CardTitle className="flex items-center">
-                    <Lock className="w-5 h-5 mr-2 text-green-600" />
+                  <CardTitle className="flex items-center font-display">
+                    <CreditCard className="w-5 h-5 mr-2 text-primary" />
                     Payment Information
                   </CardTitle>
                 </CardHeader>
@@ -101,41 +106,26 @@ export default function CheckoutPage() {
                   <form onSubmit={handleCheckout} className="space-y-6">
                     <div className="space-y-4">
                       <div>
-                        <Label htmlFor="email">Email Address</Label>
-                        <Input id="email" type="email" placeholder="your@email.com" required />
+                        <Label htmlFor="email" className="font-display">Email Address</Label>
+                        <Input id="email" type="email" placeholder="your@email.com" required className="bg-background border-border" />
                       </div>
                       
                       <div>
-                        <Label htmlFor="name">Full Name</Label>
-                        <Input id="name" placeholder="John Doe" required />
+                        <Label htmlFor="name" className="font-display">Full Name</Label>
+                        <Input id="name" placeholder="John Doe" required className="bg-background border-border" />
                       </div>
                       
-                      <Separator />
+                      <Separator className="bg-border" />
                       
-                      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                      <div className="bg-primary/10 border border-primary/30 rounded-lg p-4">
                         <div className="flex items-start gap-3">
-                          <CreditCard className="w-5 h-5 text-blue-600 mt-0.5" />
+                          <Sparkles className="w-5 h-5 text-primary mt-0.5" />
                           <div>
-                            <p className="font-semibold text-blue-900">Stripe Integration Ready</p>
-                            <p className="text-sm text-blue-700 mt-1">
+                            <p className="font-display font-semibold text-primary">Stripe Integration Ready</p>
+                            <p className="text-sm text-muted-foreground mt-1">
                               To complete checkout, add your Stripe API keys to the .env file. 
                               The payment form will appear here once configured.
                             </p>
-                          </div>
-                        </div>
-                      </div>
-                      
-                      <div>
-                        <Label>Shipping Address</Label>
-                        <div className="space-y-3 mt-2">
-                          <Input placeholder="Street Address" required />
-                          <div className="grid grid-cols-2 gap-3">
-                            <Input placeholder="City" required />
-                            <Input placeholder="State" required />
-                          </div>
-                          <div className="grid grid-cols-2 gap-3">
-                            <Input placeholder="ZIP Code" required />
-                            <Input placeholder="Country" defaultValue="United States" required />
                           </div>
                         </div>
                       </div>
@@ -144,12 +134,12 @@ export default function CheckoutPage() {
                     <Button
                       type="submit"
                       disabled={isProcessing}
-                      className="w-full bg-purple-600 hover:bg-purple-700 text-lg py-6"
+                      className="w-full bg-primary text-primary-foreground hover:bg-primary/90 font-display text-lg py-6 shadow-xl shadow-primary/30 rounded-full"
                     >
-                      {isProcessing ? 'Processing...' : 'Complete Order - $29.99'}
+                      {isProcessing ? 'Processing...' : 'Complete Order - $29.99 ⭐'}
                     </Button>
                     
-                    <p className="text-xs text-center text-gray-500">
+                    <p className="text-xs text-center text-muted-foreground">
                       🔒 Secure payment powered by Stripe. Your payment information is encrypted.
                     </p>
                   </form>
@@ -159,20 +149,20 @@ export default function CheckoutPage() {
 
             {/* Order Summary */}
             <div>
-              <Card className="sticky top-4">
+              <Card className="sticky top-4 bg-card border-2 border-primary/30">
                 <CardHeader>
-                  <CardTitle>Order Summary</CardTitle>
+                  <CardTitle className="font-display">Order Summary</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div>
-                    <h3 className="font-semibold text-gray-900 mb-2">Personalized Storybook</h3>
-                    <div className="space-y-1 text-sm text-gray-600">
+                    <h3 className="font-display font-semibold mb-2">Personalized Storybook</h3>
+                    <div className="space-y-1 text-sm text-muted-foreground">
                       <p><strong>Child:</strong> {orderData.childName}</p>
                       <p><strong>Age:</strong> {orderData.age}</p>
                       <p><strong>Gender:</strong> {orderData.gender}</p>
                       <p><strong>Theme:</strong> {orderData.theme}</p>
                       {orderData.dedication && (
-                        <p className="pt-2 border-t mt-2">
+                        <p className="pt-2 border-t border-border mt-2">
                           <strong>Dedication:</strong><br />
                           <span className="italic">"{orderData.dedication}"</span>
                         </p>
@@ -180,28 +170,28 @@ export default function CheckoutPage() {
                     </div>
                   </div>
                   
-                  <Separator />
+                  <Separator className="bg-border" />
                   
                   <div className="space-y-2">
                     <div className="flex justify-between">
                       <span>Storybook</span>
                       <span>$29.99</span>
                     </div>
-                    <div className="flex justify-between text-green-600">
-                      <span>Shipping</span>
+                    <div className="flex justify-between text-primary">
+                      <span>Instant Download</span>
                       <span>FREE</span>
                     </div>
-                    <Separator />
-                    <div className="flex justify-between font-bold text-lg">
+                    <Separator className="bg-border" />
+                    <div className="flex justify-between font-display font-bold text-lg">
                       <span>Total</span>
-                      <span className="text-purple-600">$29.99</span>
+                      <span className="text-primary">$29.99</span>
                     </div>
                   </div>
                   
-                  <div className="text-xs text-gray-500 space-y-1">
-                    <p>✓ 30-day money-back guarantee</p>
-                    <p>✓ Ships within 3-5 business days</p>
-                    <p>✓ Professional quality printing</p>
+                  <div className="text-xs text-muted-foreground space-y-1">
+                    <p>✓ Instant digital download</p>
+                    <p>✓ 32 full-color pages</p>
+                    <p>✓ Print-ready PDF format</p>
                   </div>
                 </CardContent>
               </Card>

@@ -1,59 +1,63 @@
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { CheckCircle } from 'lucide-react';
+import { CheckCircle, Sparkles, Download, Mail } from 'lucide-react';
 
 export default function CheckoutSuccessPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50 flex items-center justify-center p-4">
-      <Card className="max-w-2xl w-full">
-        <CardContent className="p-12 text-center">
-          <div className="mb-6">
-            <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-green-100 mb-4">
-              <CheckCircle className="w-12 h-12 text-green-600" />
+    <div className="min-h-screen bg-background stars-bg relative">
+      <div className="absolute inset-0 bg-gradient-to-b from-background via-background/95 to-background" />
+      
+      <div className="relative z-10 flex items-center justify-center min-h-screen p-4">
+        <Card className="max-w-2xl w-full bg-card border-2 border-primary/30">
+          <CardContent className="p-12 text-center">
+            <div className="mb-6">
+              <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-primary/20 mb-4 animate-float-up">
+                <CheckCircle className="w-12 h-12 text-primary" />
+              </div>
+              <h1 className="text-3xl font-display font-bold mb-2">Order Confirmed! ⭐</h1>
+              <p className="text-lg text-muted-foreground">
+                Thank you for your order. We're creating your magical storybook!
+              </p>
             </div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Order Confirmed!</h1>
-            <p className="text-lg text-gray-600">
-              Thank you for your order. We're creating your magical storybook!
-            </p>
-          </div>
-          
-          <div className="bg-purple-50 rounded-lg p-6 mb-8 text-left">
-            <h2 className="font-bold text-lg mb-3">What happens next?</h2>
-            <ul className="space-y-2 text-gray-700">
-              <li className="flex items-start">
-                <span className="text-purple-600 mr-2">✓</span>
-                <span>You'll receive an order confirmation email shortly</span>
-              </li>
-              <li className="flex items-start">
-                <span className="text-purple-600 mr-2">✓</span>
-                <span>Your personalized storybook will be printed within 24 hours</span>
-              </li>
-              <li className="flex items-start">
-                <span className="text-purple-600 mr-2">✓</span>
-                <span>Expect delivery within 3-5 business days</span>
-              </li>
-              <li className="flex items-start">
-                <span className="text-purple-600 mr-2">✓</span>
-                <span>Track your order via the link in your email</span>
-              </li>
-            </ul>
-          </div>
-          
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/">
-              <Button size="lg" className="bg-purple-600 hover:bg-purple-700 w-full sm:w-auto">
-                Return to Home
-              </Button>
-            </Link>
-            <Link href="/create">
-              <Button size="lg" variant="outline" className="w-full sm:w-auto">
-                Create Another Story
-              </Button>
-            </Link>
-          </div>
-        </CardContent>
-      </Card>
+            
+            <div className="bg-primary/10 rounded-lg p-6 mb-8 text-left border border-primary/30">
+              <h2 className="font-display font-bold text-lg mb-3 flex items-center gap-2">
+                <Sparkles className="h-5 w-5 text-primary" />
+                What happens next?
+              </h2>
+              <ul className="space-y-2 text-muted-foreground">
+                <li className="flex items-start">
+                  <Mail className="h-5 w-5 text-primary mr-2 mt-0.5 flex-shrink-0" />
+                  <span>You'll receive an order confirmation email shortly</span>
+                </li>
+                <li className="flex items-start">
+                  <Download className="h-5 w-5 text-primary mr-2 mt-0.5 flex-shrink-0" />
+                  <span>Your personalized PDF will be ready for instant download</span>
+                </li>
+                <li className="flex items-start">
+                  <Sparkles className="h-5 w-5 text-primary mr-2 mt-0.5 flex-shrink-0" />
+                  <span>Start reading the magical story with your child tonight!</span>
+                </li>
+              </ul>
+            </div>
+            
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Link href="/">
+                <Button size="lg" className="bg-primary text-primary-foreground hover:bg-primary/90 font-display px-8 rounded-full shadow-lg shadow-primary/30 w-full sm:w-auto">
+                  Return to Home
+                </Button>
+              </Link>
+              <Link href="/create">
+                <Button size="lg" variant="outline" className="border-primary/40 text-primary hover:bg-primary/10 font-display px-8 rounded-full w-full sm:w-auto">
+                  <Sparkles className="mr-2 w-4 h-4" />
+                  Create Another Story
+                </Button>
+              </Link>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }

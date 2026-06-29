@@ -201,9 +201,9 @@ export function PersonalizationForm({ onSubmit, initialData = {} }) {
       <Button
         type="submit"
         size="lg"
-        className="w-full bg-purple-600 hover:bg-purple-700 text-white text-lg py-6"
+        className="w-full bg-primary text-primary-foreground hover:bg-primary/90 font-display text-lg py-6 shadow-xl shadow-primary/30 rounded-full"
       >
-        Continue to Checkout
+        Continue to Checkout ⭐
       </Button>
     </form>
   );

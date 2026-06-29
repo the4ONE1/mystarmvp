@@ -1,24 +1,34 @@
-import { Inter } from 'next/font/google';
+import { Baloo_2, Nunito } from 'next/font/google';
 import './globals.css';
 
-const inter = Inter({ subsets: ['latin'] });
+const baloo2 = Baloo_2({ 
+  subsets: ['latin'],
+  variable: '--font-display',
+  weight: ['400', '500', '600', '700', '800'],
+});
+
+const nunito = Nunito({ 
+  subsets: ['latin'],
+  variable: '--font-body',
+  weight: ['400', '500', '600', '700', '800'],
+});
 
 export const metadata = {
-  title: 'Mestar - Personalized Children\'s Storybooks | Create Magical Stories',
-  description: 'Create unique, personalized storybooks featuring your child as the hero. Choose from magical themes, upload photos, and create memories that last forever. Perfect gifts for birthdays and special occasions.',
+  title: 'MESTAR — Personalized Storybooks Starring Your Child',
+  description: 'Create a personalized children\'s storybook in minutes. Upload a photo, pick a theme, and download a print-ready PDF starring your child.',
   keywords: 'personalized storybooks, children\'s books, custom storybooks, personalized gifts, kids books, photo books for kids',
-  authors: [{ name: 'Mestar' }],
+  authors: [{ name: 'MESTAR' }],
   openGraph: {
-    title: 'Mestar - Personalized Children\'s Storybooks',
-    description: 'Create unique, personalized storybooks featuring your child as the hero.',
+    title: 'MESTAR — Personalized Storybooks Starring Your Child',
+    description: 'Create a personalized children\'s storybook in minutes.',
     type: 'website',
     locale: 'en_US',
-    siteName: 'Mestar',
+    siteName: 'MESTAR',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Mestar - Personalized Children\'s Storybooks',
-    description: 'Create unique, personalized storybooks featuring your child as the hero.',
+    title: 'MESTAR — Personalized Storybooks Starring Your Child',
+    description: 'Create a personalized children\'s storybook in minutes.',
   },
   robots: {
     index: true,
@@ -31,7 +41,7 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en">
+    <html lang="en" className={`${baloo2.variable} ${nunito.variable}`}>
       <head>
         <link rel="icon" href="/favicon.ico" />
         <script
@@ -40,14 +50,14 @@ export default function RootLayout({ children }) {
             __html: JSON.stringify({
               '@context': 'https://schema.org',
               '@type': 'Organization',
-              name: 'Mestar',
+              name: 'MESTAR',
               description: 'Personalized children\'s storybooks',
-              url: process.env.NEXT_PUBLIC_BASE_URL,
+              url: process.env.NEXT_PUBLIC_BASE_URL || 'https://mestar.pro',
             }),
           }}
         />
       </head>
-      <body className={inter.className}>{children}</body>
+      <body className="font-body">{children}</body>
     </html>
   );
 }
