@@ -1,38 +1,48 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Star, Sparkles, BookOpen, Shield, Download, FileText, CheckCircle2, Clock } from 'lucide-react';
 
 export const metadata = {
-  title: 'MESTAR — Personalized Storybooks Starring Your Child',
-  description: 'Create a personalized children\'s storybook in minutes. Upload a photo, pick a theme, and download a print-ready PDF starring your child.',
+  title: 'MESTAR — Personalized Children\'s Storybooks | Make Your Child the Star',
+  description: 'Create unique personalized storybooks where your child is the hero. Choose from 6 magical themes. Instant PDF download. $29.99 one-time payment. Loved by 2,000+ families.',
+  keywords: 'personalized storybooks, children\'s books, custom books, personalized gifts for kids, photo books, digital storybooks, instant download',
+  openGraph: {
+    title: 'MESTAR — Your Child is the Star of the Story',
+    description: 'Create personalized storybooks in minutes. Upload photos, choose themes, instant download.',
+    type: 'website',
+  },
 };
 
-const ProductCard = ({ title, description, price, image }) => {
+const ProductCard = ({ title, description, price, image, imageAlt }) => {
   return (
-    <Link href="/create" className="group block h-full">
+    <Link href="/create" className="group block h-full" aria-label={`Create ${title} personalized storybook`}>
       <div className="relative h-full flex flex-col bg-card rounded-3xl overflow-hidden border border-border hover:border-primary/60 transition-all duration-300 hover:shadow-2xl hover:shadow-primary/20 hover:-translate-y-1">
         {/* Top ribbon */}
         <div className="absolute top-3 left-3 z-10 inline-flex items-center gap-1 bg-primary text-primary-foreground text-[10px] font-bold uppercase tracking-wider rounded-full px-2.5 py-1 shadow-md">
-          <Sparkles className="h-3 w-3" /> Bestseller
+          <Sparkles className="h-3 w-3" aria-hidden="true" /> Bestseller
         </div>
         <div className="absolute top-3 right-3 z-10 bg-background/90 backdrop-blur-sm text-foreground text-[10px] font-bold uppercase tracking-wider rounded-full px-2.5 py-1 shadow-md border border-border">
           Instant PDF
         </div>
 
-        <div className="aspect-[4/3] overflow-hidden bg-gradient-to-br from-secondary/30 to-primary/5">
-          <img
+        <div className="aspect-[4/3] overflow-hidden bg-gradient-to-br from-secondary/30 to-primary/5 relative">
+          <Image
             src={image}
-            alt={title}
-            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+            alt={imageAlt}
+            fill
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+            className="object-cover group-hover:scale-110 transition-transform duration-700"
+            loading="lazy"
           />
         </div>
 
         <div className="p-5 flex flex-col flex-1">
           {/* Rating row */}
           <div className="flex items-center gap-1.5 mb-2">
-            <div className="flex">
+            <div className="flex" role="img" aria-label="5 star rating">
               {[...Array(5)].map((_, i) => (
-                <Star key={i} className="h-3.5 w-3.5 text-primary fill-primary" />
+                <Star key={i} className="h-3.5 w-3.5 text-primary fill-primary" aria-hidden="true" />
               ))}
             </div>
             <span className="text-xs text-muted-foreground font-medium">Loved by 2,000+ families</span>
@@ -47,8 +57,8 @@ const ProductCard = ({ title, description, price, image }) => {
 
           {/* Mini feature ticks */}
           <ul className="text-xs text-muted-foreground space-y-1 mb-4">
-            <li className="flex items-center gap-1.5"><CheckCircle2 className="h-3.5 w-3.5 text-primary" /> Your child as the hero</li>
-            <li className="flex items-center gap-1.5"><CheckCircle2 className="h-3.5 w-3.5 text-primary" /> Coloring pages included</li>
+            <li className="flex items-center gap-1.5"><CheckCircle2 className="h-3.5 w-3.5 text-primary" aria-hidden="true" /> Your child as the hero</li>
+            <li className="flex items-center gap-1.5"><CheckCircle2 className="h-3.5 w-3.5 text-primary" aria-hidden="true" /> Coloring pages included</li>
           </ul>
 
           <div className="mt-auto flex items-end justify-between gap-3">
@@ -59,7 +69,7 @@ const ProductCard = ({ title, description, price, image }) => {
               <span className="text-[10px] text-muted-foreground mt-0.5">one-time payment</span>
             </div>
             <span className="inline-flex items-center gap-1 bg-primary text-primary-foreground font-display rounded-full px-4 py-2.5 text-sm font-bold shadow-lg shadow-primary/30 group-hover:bg-primary/90 group-hover:scale-105 transition-all">
-              <Sparkles className="h-4 w-4" />
+              <Sparkles className="h-4 w-4" aria-hidden="true" />
               Personalize
             </span>
           </div>
@@ -75,19 +85,22 @@ export default function HomePage() {
       title: 'Space Adventure',
       description: 'Explore galaxies and discover new planets in this cosmic adventure',
       price: '29.99',
-      image: 'https://images.unsplash.com/photo-1620190133480-6a462f034658?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1NTJ8MHwxfHNlYXJjaHwyfHxtYWdpY2FsJTIwc3Rvcnlib29rfGVufDB8fHx8MTc4MjcwMDA2M3ww&ixlib=rb-4.1.0&q=85'
+      image: 'https://images.unsplash.com/photo-1620190133480-6a462f034658?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1NTJ8MHwxfHNlYXJjaHwyfHxtYWdpY2FsJTIwc3Rvcnlib29rfGVufDB8fHx8MTc4MjcwMDA2M3ww&ixlib=rb-4.1.0&q=85',
+      imageAlt: 'Space themed personalized storybook for children',
     },
     {
       title: 'Royal Princess',
       description: 'Rule a magical kingdom with grace and courage in this royal tale',
       price: '29.99',
-      image: 'https://images.pexels.com/photos/6157218/pexels-photo-6157218.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940'
+      image: 'https://images.pexels.com/photos/6157218/pexels-photo-6157218.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940',
+      imageAlt: 'Princess themed personalized storybook for children',
     },
     {
       title: 'Superhero Mission',
       description: 'Save the day with special powers and become the hero everyone needs',
       price: '29.99',
-      image: 'https://images.pexels.com/photos/35610365/pexels-photo-35610365.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940'
+      image: 'https://images.pexels.com/photos/35610365/pexels-photo-35610365.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940',
+      imageAlt: 'Superhero themed personalized storybook for children',
     }
   ];
 
@@ -249,7 +262,7 @@ export default function HomePage() {
               <ul className="space-y-2 text-sm text-muted-foreground">
                 <li><Link href="/create" className="hover:text-primary transition-colors">Create Story</Link></li>
                 <li><Link href="/#products" className="hover:text-primary transition-colors">Shop Stories</Link></li>
-                <li><Link href="/#" className="hover:text-primary transition-colors">How It Works</Link></li>
+                <li><Link href="/faq" className="hover:text-primary transition-colors">FAQ</Link></li>
               </ul>
             </div>
             <div>

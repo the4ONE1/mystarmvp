@@ -1,27 +1,59 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { PhotoUpload } from '@/components/PhotoUpload';
 import { PersonalizationForm } from '@/components/PersonalizationForm';
-import { ArrowLeft, Camera, Edit3, ShoppingCart, Sparkles } from 'lucide-react';
+import { ArrowLeft, Camera, Edit3, ShoppingCart, Sparkles, Save } from 'lucide-react';
+import { useToast } from '@/components/ui/use-toast';
 
 export default function CreateStoryPage() {
   const router = useRouter();
   const [step, setStep] = useState(1);
   const [photos, setPhotos] = useState([]);
   const [personalizationData, setPersonalizationData] = useState(null);
+  const [savedData, setSavedData] = useState(null);
+
+  // Load saved progress on mount
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('mestar_draft');
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          setSavedData(parsed);
+        } catch (e) {
+          console.error('Error loading saved data:', e);
+        }
+      }
+    }
+  }, []);
 
   const handlePhotosChange = (newPhotos) => {
     setPhotos(newPhotos);
+    // Auto-save to localStorage
+    saveDraft({ photos: newPhotos });
+  };
+
+  const saveDraft = (data) => {
+    if (typeof window !== 'undefined') {
+      const existing = localStorage.getItem('mestar_draft');
+      const current = existing ? JSON.parse(existing) : {};
+      localStorage.setItem('mestar_draft', JSON.stringify({
+        ...current,
+        ...data,
+        lastSaved: new Date().toISOString(),
+      }));
+    }
   };
 
   const handleNextStep = () => {
     if (step === 1) {
       setStep(2);
+      saveDraft({ step: 2 });
     }
   };
 
@@ -33,6 +65,9 @@ export default function CreateStoryPage() {
       photos: photos.map(p => p.preview),
       timestamp: new Date().toISOString(),
     }));
+    
+    // Clear draft on successful submission
+    localStorage.removeItem('mestar_draft');
     
     router.push('/checkout');
   };
