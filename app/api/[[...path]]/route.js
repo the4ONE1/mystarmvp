@@ -274,8 +274,9 @@ export async function GET(request) {
       try {
         const photosCollection = await getCollection('photos');
         const photos = await photosCollection
-          .find({ childId, storybookId })
+          .find({ childId, storybookId }, { projection: { photoUrl: 1, uploadedAt: 1, mimeType: 1, sizeBytes: 1 } })
           .sort({ uploadedAt: 1 })
+          .limit(100)
           .toArray();
 
         return NextResponse.json({ photos }, { headers: corsHeaders() });

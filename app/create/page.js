@@ -28,36 +28,32 @@ export default function CreateStoryPage() {
   const handlePersonalizationSubmit = async (formData) => {
     setPersonalizationData(formData);
     
-    // Store in sessionStorage for checkout
     sessionStorage.setItem('storyOrder', JSON.stringify({
       ...formData,
       photos: photos.map(p => p.preview),
       timestamp: new Date().toISOString(),
     }));
     
-    // Redirect to checkout
     router.push('/checkout');
   };
 
   return (
-    <div className=\"min-h-screen bg-background\">
-      {/* Announcement Bar */}
-      <div className=\"bg-primary text-primary-foreground text-center py-2 px-4\">
-        <p className=\"text-sm font-display font-bold\">
+    <div className="min-h-screen bg-background">
+      <div className="bg-primary text-primary-foreground text-center py-2 px-4">
+        <p className="text-sm font-display font-bold">
           ⭐ Personalized digital storybooks — $29.99 one-time payment — instant digital download
         </p>
       </div>
 
-      {/* Navigation */}
-      <nav className=\"bg-background/80 backdrop-blur-lg border-b border-border sticky top-0 z-50\">
-        <div className=\"container mx-auto px-4 sm:px-6 lg:px-8\">
-          <div className=\"flex justify-between items-center h-16\">
-            <Link href=\"/\" className=\"flex items-center space-x-2\">
-              <span className=\"text-2xl font-display font-bold text-primary drop-shadow-[0_0_10px_hsl(43_75%_62%/0.5)]\">MESTAR</span>
+      <nav className="bg-background/80 backdrop-blur-lg border-b border-border sticky top-0 z-50">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            <Link href="/" className="flex items-center space-x-2">
+              <span className="text-2xl font-display font-bold text-primary drop-shadow-[0_0_10px_hsl(43_75%_62%/0.5)]">MESTAR</span>
             </Link>
-            <Link href=\"/\">
-              <Button variant=\"ghost\" className=\"text-foreground hover:text-primary\">
-                <ArrowLeft className=\"w-4 h-4 mr-2\" />
+            <Link href="/">
+              <Button variant="ghost" className="text-foreground hover:text-primary">
+                <ArrowLeft className="w-4 h-4 mr-2" />
                 Back to Home
               </Button>
             </Link>
@@ -65,16 +61,14 @@ export default function CreateStoryPage() {
         </div>
       </nav>
 
-      {/* Main Content */}
-      <div className=\"container mx-auto px-4 sm:px-6 lg:px-8 py-12\">
-        {/* Progress Steps */}
-        <div className=\"max-w-4xl mx-auto mb-12\">
-          <div className=\"flex items-center justify-center\">
-            <div className=\"flex items-center\">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="max-w-4xl mx-auto mb-12">
+          <div className="flex items-center justify-center">
+            <div className="flex items-center">
               <div className={`flex items-center justify-center w-10 h-10 rounded-full border-2 ${
                 step >= 1 ? 'bg-primary border-primary text-primary-foreground' : 'border-muted text-muted-foreground'
               }`}>
-                <Camera className=\"w-5 h-5\" />
+                <Camera className="w-5 h-5" />
               </div>
               <div className={`w-24 h-1 mx-2 ${
                 step >= 2 ? 'bg-primary' : 'bg-muted'
@@ -82,54 +76,53 @@ export default function CreateStoryPage() {
               <div className={`flex items-center justify-center w-10 h-10 rounded-full border-2 ${
                 step >= 2 ? 'bg-primary border-primary text-primary-foreground' : 'border-muted text-muted-foreground'
               }`}>
-                <Edit3 className=\"w-5 h-5\" />
+                <Edit3 className="w-5 h-5" />
               </div>
-              <div className={`w-24 h-1 mx-2 bg-muted`} />
-              <div className=\"flex items-center justify-center w-10 h-10 rounded-full border-2 border-muted text-muted-foreground\">
-                <ShoppingCart className=\"w-5 h-5\" />
+              <div className="w-24 h-1 mx-2 bg-muted" />
+              <div className="flex items-center justify-center w-10 h-10 rounded-full border-2 border-muted text-muted-foreground">
+                <ShoppingCart className="w-5 h-5" />
               </div>
             </div>
           </div>
-          <div className=\"flex justify-center mt-2\">
-            <div className=\"text-center w-32\">
+          <div className="flex justify-center mt-2">
+            <div className="text-center w-32">
               <p className={`text-sm font-display font-semibold ${step >= 1 ? 'text-primary' : 'text-muted-foreground'}`}>Upload Photos</p>
             </div>
-            <div className=\"text-center w-32\">
+            <div className="text-center w-32">
               <p className={`text-sm font-display font-semibold ${step >= 2 ? 'text-primary' : 'text-muted-foreground'}`}>Personalize</p>
             </div>
-            <div className=\"text-center w-32\">
-              <p className=\"text-sm font-display font-semibold text-muted-foreground\">Checkout</p>
+            <div className="text-center w-32">
+              <p className="text-sm font-display font-semibold text-muted-foreground">Checkout</p>
             </div>
           </div>
         </div>
 
-        {/* Step Content */}
-        <div className=\"max-w-4xl mx-auto\">
+        <div className="max-w-4xl mx-auto">
           {step === 1 && (
-            <Card className=\"bg-card border-2 border-border\">
+            <Card className="bg-card border-2 border-border">
               <CardHeader>
-                <CardTitle className=\"text-2xl font-display flex items-center gap-2\">
-                  <Sparkles className=\"h-6 w-6 text-primary\" />
+                <CardTitle className="text-2xl font-display flex items-center gap-2">
+                  <Sparkles className="h-6 w-6 text-primary" />
                   Upload Your Child's Photos
                 </CardTitle>
-                <p className=\"text-muted-foreground\">Add photos to personalize your storybook (optional but recommended)</p>
+                <p className="text-muted-foreground">Add photos to personalize your storybook (optional but recommended)</p>
               </CardHeader>
-              <CardContent className=\"space-y-6\">
+              <CardContent className="space-y-6">
                 <PhotoUpload onPhotosChange={handlePhotosChange} />
                 
-                <div className=\"flex justify-between pt-6 border-t border-border\">
-                  <Link href=\"/\">
-                    <Button variant=\"outline\" className=\"border-border hover:bg-muted\">
-                      <ArrowLeft className=\"w-4 h-4 mr-2\" />
+                <div className="flex justify-between pt-6 border-t border-border">
+                  <Link href="/">
+                    <Button variant="outline" className="border-border hover:bg-muted">
+                      <ArrowLeft className="w-4 h-4 mr-2" />
                       Cancel
                     </Button>
                   </Link>
                   <Button
                     onClick={handleNextStep}
-                    className=\"bg-primary text-primary-foreground hover:bg-primary/90 font-display shadow-lg shadow-primary/30\"
+                    className="bg-primary text-primary-foreground hover:bg-primary/90 font-display shadow-lg shadow-primary/30"
                   >
                     Continue
-                    <Sparkles className=\"ml-2 w-4 h-4\" />
+                    <Sparkles className="ml-2 w-4 h-4" />
                   </Button>
                 </div>
               </CardContent>
@@ -137,24 +130,24 @@ export default function CreateStoryPage() {
           )}
 
           {step === 2 && (
-            <Card className=\"bg-card border-2 border-border\">
+            <Card className="bg-card border-2 border-border">
               <CardHeader>
-                <CardTitle className=\"text-2xl font-display flex items-center gap-2\">
-                  <Sparkles className=\"h-6 w-6 text-primary\" />
+                <CardTitle className="text-2xl font-display flex items-center gap-2">
+                  <Sparkles className="h-6 w-6 text-primary" />
                   Personalize Your Story
                 </CardTitle>
-                <p className=\"text-muted-foreground\">Tell us about your child to create a magical personalized storybook</p>
+                <p className="text-muted-foreground">Tell us about your child to create a magical personalized storybook</p>
               </CardHeader>
               <CardContent>
                 <PersonalizationForm onSubmit={handlePersonalizationSubmit} />
                 
-                <div className=\"mt-6 pt-6 border-t border-border\">
+                <div className="mt-6 pt-6 border-t border-border">
                   <Button
-                    variant=\"outline\"
+                    variant="outline"
                     onClick={() => setStep(1)}
-                    className=\"border-border hover:bg-muted\"
+                    className="border-border hover:bg-muted"
                   >
-                    <ArrowLeft className=\"w-4 h-4 mr-2\" />
+                    <ArrowLeft className="w-4 h-4 mr-2" />
                     Back to Photos
                   </Button>
                 </div>
@@ -163,18 +156,17 @@ export default function CreateStoryPage() {
           )}
         </div>
 
-        {/* Pricing Card */}
-        <div className=\"max-w-4xl mx-auto mt-8\">
-          <Card className=\"bg-card/50 border-2 border-primary/30\">
-            <CardContent className=\"p-6\">
-              <div className=\"flex justify-between items-center\">
+        <div className="max-w-4xl mx-auto mt-8">
+          <Card className="bg-card/50 border-2 border-primary/30">
+            <CardContent className="p-6">
+              <div className="flex justify-between items-center">
                 <div>
-                  <h3 className=\"font-display font-bold text-lg\">Personalized Storybook</h3>
-                  <p className=\"text-sm text-muted-foreground\">Digital PDF, 32 full-color pages</p>
+                  <h3 className="font-display font-bold text-lg">Personalized Storybook</h3>
+                  <p className="text-sm text-muted-foreground">Digital PDF, 32 full-color pages</p>
                 </div>
-                <div className=\"text-right\">
-                  <p className=\"text-3xl font-display font-extrabold text-primary\">$29.99</p>
-                  <p className=\"text-sm text-muted-foreground\">+ Instant Download</p>
+                <div className="text-right">
+                  <p className="text-3xl font-display font-extrabold text-primary">$29.99</p>
+                  <p className="text-sm text-muted-foreground">+ Instant Download</p>
                 </div>
               </div>
             </CardContent>
