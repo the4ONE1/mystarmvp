@@ -1,8 +1,8 @@
-# DNS Records Quick Reference for Shopify
+# DNS Records Quick Reference for MyStarStories.shop
 
-## Step-by-Step: What to Add in Shopify DNS
+## Step-by-Step: What to Add in Your DNS Settings
 
-### For mystarstories.com (Primary Domain)
+### For mystarstories.shop
 
 ```
 Record 1:
@@ -22,64 +22,25 @@ TTL:      3600 (or Auto)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ```
 
-### For mystarstories.org (Redirect Domain)
-
-```
-Record 3:
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Type:     A
-Host:     @ (or leave blank for root)
-Points to: [SAME IP AS MYSTARSTORIES.COM]
-TTL:      3600 (or Auto)
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-Record 4:
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Type:     A
-Host:     www
-Points to: [SAME IP AS MYSTARSTORIES.COM]
-TTL:      3600 (or Auto)
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-```
-
 ---
 
-## 📋 Copy-Paste Template for Shopify
+## 📋 Copy-Paste Template
 
 After Emergent provides your IP address (example: 104.248.123.45):
 
 ```
-Domain: mystarstories.com
-  @ → A → 104.248.123.45
-  www → A → 104.248.123.45
-
-Domain: mystarstories.org
+Domain: mystarstories.shop
   @ → A → 104.248.123.45
   www → A → 104.248.123.45
 ```
-
----
-
-## 🔍 How to Find These Settings in Shopify
-
-1. Login: https://www.shopify.com/admin
-2. Click: Settings (bottom left)
-3. Click: Domains
-4. Find: mystarstories.com → Click "Manage"
-5. Click: "DNS Settings" or "Edit DNS"
-6. Click: "Add record" or "Add new record"
-7. Fill in the information from above
-8. Repeat for mystarstories.org
 
 ---
 
 ## ⚡ Expected Result After Configuration
 
 ```
-https://mystarstories.com           → Your app (PRIMARY)
-https://www.mystarstories.com       → Redirects to mystarstories.com
-https://mystarstories.org           → Redirects to mystarstories.com
-https://www.mystarstories.org       → Redirects to mystarstories.com
+https://mystarstories.shop           → Your app (PRIMARY)
+https://www.mystarstories.shop       → Your app (works)
 ```
 
 ---
@@ -91,7 +52,7 @@ https://www.mystarstories.org       → Redirects to mystarstories.com
 Contact Emergent Agent Support:
 - Email: support@emergentagent.com
 - Subject: "DNS Configuration for mestar-stories app"
-- Message: "Please provide the IP address or CNAME target for my app at mestar-stories.preview.emergentagent.com so I can configure mystarstories.com and mystarstories.org"
+- Message: "Please provide the IP address or CNAME target for my app at mestar-stories.preview.emergentagent.com so I can configure mystarstories.shop"
 
 They will reply with something like:
 - IP Address: 104.248.123.45
@@ -115,12 +76,11 @@ Then use that information in the DNS records above!
 After adding DNS records:
 
 1. [ ] Wait 1 hour
-2. [ ] Check: https://www.whatsmydns.net/ (enter mystarstories.com)
+2. [ ] Check: https://www.whatsmydns.net/ (enter mystarstories.shop)
 3. [ ] Verify records showing your IP globally
-4. [ ] Try accessing: https://mystarstories.com
+4. [ ] Try accessing: https://mystarstories.shop
 5. [ ] Verify SSL certificate is valid (padlock icon)
-6. [ ] Test: https://mystarstories.org redirects to .com
-7. [ ] Test all pages load correctly
+6. [ ] Test all pages load correctly
 
 ---
 

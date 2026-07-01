@@ -4,26 +4,15 @@ export function middleware(request) {
   const hostname = request.headers.get('host') || '';
   const url = request.nextUrl.clone();
 
-  // Redirect mystarstories.org to mystarstories.com
-  if (hostname.includes('mystarstories.org')) {
-    url.hostname = 'mystarstories.com';
+  // Optional: Redirect www.mystarstories.shop to mystarstories.shop
+  // Remove the comment below if you want to enforce non-www
+  /*
+  if (hostname === 'www.mystarstories.shop') {
+    url.hostname = 'mystarstories.shop';
     url.protocol = 'https:';
     return NextResponse.redirect(url, 301);
   }
-
-  // Redirect www.mystarstories.org to mystarstories.com
-  if (hostname === 'www.mystarstories.org') {
-    url.hostname = 'mystarstories.com';
-    url.protocol = 'https:';
-    return NextResponse.redirect(url, 301);
-  }
-
-  // Redirect www.mystarstories.com to mystarstories.com (optional - for consistency)
-  if (hostname === 'www.mystarstories.com') {
-    url.hostname = 'mystarstories.com';
-    url.protocol = 'https:';
-    return NextResponse.redirect(url, 301);
-  }
+  */
 
   return NextResponse.next();
 }

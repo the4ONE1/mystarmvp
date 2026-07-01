@@ -2,4 +2,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://mystarstories.com/sitemap.xml
+Sitemap: https://mystarstories.shop/sitemap.xml
