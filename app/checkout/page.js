@@ -7,14 +7,13 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
-import { ArrowLeft, CreditCard, Lock, Sparkles } from 'lucide-react';
+import { ArrowLeft, CreditCard, Lock, Sparkles, CheckCircle2 } from 'lucide-react';
 
 export default function CheckoutPage() {
   const [orderData, setOrderData] = useState(null);
-  const [isProcessing, setIsProcessing] = useState(false);
+  const [showComingSoon, setShowComingSoon] = useState(false);
 
   useEffect(() => {
-    // Load order data from sessionStorage
     const stored = sessionStorage.getItem('storyOrder');
     if (stored) {
       setOrderData(JSON.parse(stored));
@@ -23,27 +22,7 @@ export default function CheckoutPage() {
 
   const handleCheckout = async (e) => {
     e.preventDefault();
-    setIsProcessing(true);
-
-    try {
-      const response = await fetch('/api/create-checkout-session', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(orderData),
-      });
-
-      if (response.ok) {
-        const { url, sessionId } = await response.json();
-        window.location.href = '/checkout/success';
-      } else {
-        alert('Checkout creation failed. Please ensure Stripe keys are configured.');
-      }
-    } catch (error) {
-      console.error('Checkout error:', error);
-      alert('An error occurred. Please try again.');
-    } finally {
-      setIsProcessing(false);
-    }
+    setShowComingSoon(true);
   };
 
   if (!orderData) {
@@ -64,16 +43,60 @@ export default function CheckoutPage() {
     );
   }
 
+  if (showComingSoon) {
+    return (
+      <div className="min-h-screen bg-background stars-bg relative">
+        <div className="absolute inset-0 bg-gradient-to-b from-background via-background/95 to-background" />
+        <div className="relative z-10 flex items-center justify-center min-h-screen p-4">
+          <Card className="max-w-2xl w-full bg-card border-2 border-primary/30">
+            <CardContent className="p-12 text-center">
+              <div className="mb-6">
+                <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-primary/20 mb-4">
+                  <CheckCircle2 className="w-12 h-12 text-primary" />
+                </div>
+                <h1 className="text-3xl font-display font-bold mb-2">Thank You! ⭐</h1>
+                <p className="text-lg text-muted-foreground">
+                  We're finalizing our payment system. Your story details have been saved!
+                </p>
+              </div>
+              
+              <div className="bg-primary/10 rounded-lg p-6 mb-8 text-left border border-primary/30">
+                <h2 className="font-display font-bold text-lg mb-3">Your Story Details:</h2>
+                <div className="space-y-2 text-muted-foreground">
+                  <p><strong>Child:</strong> {orderData.childName}</p>
+                  <p><strong>Age:</strong> {orderData.age}</p>
+                  <p><strong>Theme:</strong> {orderData.theme}</p>
+                </div>
+              </div>
+              
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <Link href="/">
+                  <Button size="lg" className="bg-primary text-primary-foreground hover:bg-primary/90 font-display px-8 rounded-full w-full sm:w-auto">
+                    Return to Home
+                  </Button>
+                </Link>
+                <Link href="/create">
+                  <Button size="lg" variant="outline" className="border-primary/40 text-primary hover:bg-primary/10 font-display px-8 rounded-full w-full sm:w-auto">
+                    <Sparkles className="mr-2 w-4 h-4" />
+                    Create Another Story
+                  </Button>
+                </Link>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-background">
-      {/* Announcement Bar */}
       <div className="bg-primary text-primary-foreground text-center py-2 px-4">
         <p className="text-sm font-display font-bold">
           ⭐ Personalized digital storybooks — $29.99 one-time payment — instant digital download
         </p>
       </div>
 
-      {/* Navigation */}
       <nav className="bg-background/80 backdrop-blur-lg border-b border-border">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
@@ -84,7 +107,6 @@ export default function CheckoutPage() {
         </div>
       </nav>
 
-      {/* Main Content */}
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="max-w-5xl mx-auto">
           <h1 className="text-3xl font-display font-bold mb-8 flex items-center gap-2">
@@ -93,13 +115,12 @@ export default function CheckoutPage() {
           </h1>
           
           <div className="grid lg:grid-cols-3 gap-8">
-            {/* Checkout Form */}
             <div className="lg:col-span-2">
               <Card className="bg-card border-2 border-border">
                 <CardHeader>
                   <CardTitle className="flex items-center font-display">
                     <CreditCard className="w-5 h-5 mr-2 text-primary" />
-                    Payment Information
+                    Order Information
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -121,10 +142,9 @@ export default function CheckoutPage() {
                         <div className="flex items-start gap-3">
                           <Sparkles className="w-5 h-5 text-primary mt-0.5" />
                           <div>
-                            <p className="font-display font-semibold text-primary">Stripe Integration Ready</p>
+                            <p className="font-display font-semibold text-primary">Payment System Coming Soon</p>
                             <p className="text-sm text-muted-foreground mt-1">
-                              To complete checkout, add your Stripe API keys to the .env file. 
-                              The payment form will appear here once configured.
+                              We're finalizing our secure payment integration. Click below to save your story details!
                             </p>
                           </div>
                         </div>
@@ -133,21 +153,21 @@ export default function CheckoutPage() {
                     
                     <Button
                       type="submit"
-                      disabled={isProcessing}
                       className="w-full bg-primary text-primary-foreground hover:bg-primary/90 font-display text-lg py-6 shadow-xl shadow-primary/30 rounded-full"
+                      data-track-event="checkout-submit"
+                      data-track-value="29.99"
                     >
-                      {isProcessing ? 'Processing...' : 'Complete Order - $29.99 ⭐'}
+                      Save My Story Details ⭐
                     </Button>
                     
                     <p className="text-xs text-center text-muted-foreground">
-                      🔒 Secure payment powered by Stripe. Your payment information is encrypted.
+                      🔒 Your information is secure and will never be shared.
                     </p>
                   </form>
                 </CardContent>
               </Card>
             </div>
 
-            {/* Order Summary */}
             <div>
               <Card className="sticky top-4 bg-card border-2 border-primary/30">
                 <CardHeader>

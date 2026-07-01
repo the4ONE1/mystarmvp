@@ -1,5 +1,8 @@
 import { Baloo_2, Nunito } from 'next/font/google';
 import './globals.css';
+import { MetaPixel } from '@/components/MetaPixel';
+import { GoogleAnalytics } from '@/components/GoogleAnalytics';
+import { GoogleTagManager } from '@/components/GoogleTagManager';
 
 const baloo2 = Baloo_2({ 
   subsets: ['latin'],
@@ -52,12 +55,17 @@ export default function RootLayout({ children }) {
               '@type': 'Organization',
               name: 'MESTAR',
               description: 'Personalized children\'s storybooks',
-              url: process.env.NEXT_PUBLIC_BASE_URL || 'https://mestar.pro',
+              url: process.env.NEXT_PUBLIC_BASE_URL || 'https://mystarstories.shop',
             }),
           }}
         />
       </head>
-      <body className="font-body">{children}</body>
+      <body className="font-body">
+        <GoogleTagManager />
+        <MetaPixel />
+        <GoogleAnalytics />
+        {children}
+      </body>
     </html>
   );
 }
