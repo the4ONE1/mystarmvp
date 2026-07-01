@@ -75,7 +75,7 @@ export default function CreateStoryPage() {
     <div className="min-h-screen bg-background">
       <div className="bg-primary text-primary-foreground text-center py-2 px-4">
         <p className="text-sm font-display font-bold">
-          ⭐ Personalized digital storybooks — $29.99 one-time payment — instant digital download
+          ⭐ Personalized digital storybooks — $19.99 one-time payment — instant digital download
         </p>
       </div>
 
@@ -199,7 +199,7 @@ export default function CreateStoryPage() {
                   <p className="text-sm text-muted-foreground">Digital PDF, 32 full-color pages</p>
                 </div>
                 <div className="text-right">
-                  <p className="text-3xl font-display font-extrabold text-primary">$29.99</p>
+                  <p className="text-3xl font-display font-extrabold text-primary">$19.99</p>
                   <p className="text-sm text-muted-foreground">+ Instant Download</p>
                 </div>
               </div>

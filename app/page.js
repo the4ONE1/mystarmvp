@@ -5,7 +5,7 @@ import { Star, Sparkles, BookOpen, Shield, Download, FileText, CheckCircle2, Clo
 
 export const metadata = {
   title: 'MESTAR — Personalized Children\'s Storybooks | Make Your Child the Star',
-  description: 'Create unique personalized storybooks where your child is the hero. Choose from 6 magical themes. Instant PDF download. $29.99 one-time payment. Loved by 2,000+ families.',
+  description: 'Create unique personalized storybooks where your child is the hero. Choose from 6 magical themes. Instant PDF download. $19.99 one-time payment. Loved by 2,000+ families.',
   keywords: 'personalized storybooks, children\'s books, custom books, personalized gifts for kids, photo books, digital storybooks, instant download',
   openGraph: {
     title: 'MESTAR — Your Child is the Star of the Story',
@@ -84,21 +84,21 @@ export default function HomePage() {
     {
       title: 'Space Adventure',
       description: 'Explore galaxies and discover new planets in this cosmic adventure',
-      price: '29.99',
+      price: '19.99',
       image: 'https://images.unsplash.com/photo-1620190133480-6a462f034658?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1NTJ8MHwxfHNlYXJjaHwyfHxtYWdpY2FsJTIwc3Rvcnlib29rfGVufDB8fHx8MTc4MjcwMDA2M3ww&ixlib=rb-4.1.0&q=85',
       imageAlt: 'Space themed personalized storybook for children',
     },
     {
       title: 'Royal Princess',
       description: 'Rule a magical kingdom with grace and courage in this royal tale',
-      price: '29.99',
+      price: '19.99',
       image: 'https://images.pexels.com/photos/6157218/pexels-photo-6157218.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940',
       imageAlt: 'Princess themed personalized storybook for children',
     },
     {
       title: 'Superhero Mission',
       description: 'Save the day with special powers and become the hero everyone needs',
-      price: '29.99',
+      price: '19.99',
       image: 'https://images.pexels.com/photos/35610365/pexels-photo-35610365.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940',
       imageAlt: 'Superhero themed personalized storybook for children',
     }
@@ -109,7 +109,7 @@ export default function HomePage() {
       {/* Announcement Bar */}
       <div className="bg-primary text-primary-foreground text-center py-2 px-4">
         <p className="text-sm font-display font-bold">
-          ⭐ Personalized digital storybooks — $29.99 one-time payment — instant digital download
+          ⭐ Personalized digital storybooks — $19.99 one-time payment — instant digital download
         </p>
       </div>
 

@@ -133,7 +133,7 @@ sudo supervisorctl restart nextjs
 Key conversion points have tracking attributes:
 ```html
 data-track-event="checkout-submit"
-data-track-value="29.99"
+data-track-value="19.99"
 ```
 
 These help you track:

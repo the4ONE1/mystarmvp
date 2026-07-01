@@ -44,7 +44,7 @@ export async function POST(request) {
         customer_email: customerEmail,
         status: 'pending',
         line_items: [
-          { price_id: 'price_placeholder_main', description: 'Personalized Storybook', quantity: 1, amount: 2999 },
+          { price_id: 'price_placeholder_main', description: 'Personalized Storybook', quantity: 1, amount: 1999 },
           ...selectedAddons.map(addon => ({
             price_id: addon.priceId,
             description: addon.name,

@@ -43,7 +43,7 @@ Secret key: sk_test_XXXXXXXXXXXXXXX (click "Reveal test key")
    - **Name**: Personalized Storybook
    - **Description**: Digital personalized children's storybook PDF
 4. Under "Pricing":
-   - **Price**: 29.99
+   - **Price**: 19.99
    - **Currency**: USD
    - **Billing**: One time
 5. Click **"Save product"**

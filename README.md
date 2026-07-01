@@ -86,7 +86,7 @@ STRIPE_PRICE_ID=price_your_price_id_here
 **To create a Stripe Price:**
 1. Go to Stripe Dashboard → Products
 2. Create a new product "Personalized Storybook"
-3. Set price to $29.99 (one-time payment)
+3. Set price to $19.99 (one-time payment)
 4. Copy the Price ID (starts with `price_`)
 
 #### AWS S3 Configuration

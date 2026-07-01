@@ -34,7 +34,7 @@ Your Mestar personalized children's storybook application is **fully built and f
 - Shipping address form
 - Stripe checkout integration ready
 - Success/Cancel pages
-- Price display: $29.99 + Free Shipping
+- Price display: $19.99 + Free Shipping
 
 ### Backend API ✅
 - Health check endpoint (`/api/health`)
@@ -59,7 +59,7 @@ STRIPE_SECRET_KEY=sk_test_YOUR_KEY_HERE
 **Create a Price:**
 1. Dashboard → Products → Create Product
 2. Name: "Personalized Storybook"
-3. Price: $29.99 (one-time)
+3. Price: $19.99 (one-time)
 4. Copy the Price ID (starts with `price_`)
 
 ```bash

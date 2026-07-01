@@ -65,7 +65,7 @@ export default function FAQPage() {
       {/* Announcement Bar */}
       <div className="bg-primary text-primary-foreground text-center py-2 px-4">
         <p className="text-sm font-display font-bold">
-          ⭐ Personalized digital storybooks — $29.99 one-time payment — instant digital download
+          ⭐ Personalized digital storybooks — $19.99 one-time payment — instant digital download
         </p>
       </div>
 

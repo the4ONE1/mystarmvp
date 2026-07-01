@@ -52,7 +52,7 @@ Secret key: sk_test_XXXXXXXXXXXXXXXXXXXXXXXX
 1. In Stripe Dashboard → "Products" → "Add Product"
 2. Product name: "Personalized Storybook"
 3. Description: "Digital personalized children's storybook"
-4. Price: $29.99
+4. Price: $19.99
 5. Select "One-time"
 6. Click "Save product"
 7. **Copy the Price ID** - It starts with `price_` (example: `price_1234567890abcdef`)

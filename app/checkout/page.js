@@ -62,7 +62,7 @@ export default function CheckoutPage() {
   };
 
   const calculateTotal = () => {
-    let total = 2999; // Main story $29.99
+    let total = 1999; // Main story $19.99
     selectedAddons.forEach(addonId => {
       const addon = ADDONS.find(a => a.id === addonId);
       if (addon) total += addon.price;
@@ -278,7 +278,7 @@ export default function CheckoutPage() {
                   <div className="space-y-2">
                     <div className="flex justify-between">
                       <span>Personalized Storybook</span>
-                      <span>$29.99</span>
+                      <span>$19.99</span>
                     </div>
                     
                     {selectedAddons.map(addonId => {
