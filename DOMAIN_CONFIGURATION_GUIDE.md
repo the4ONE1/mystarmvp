@@ -1,4 +1,4 @@
-# 🌐 Domain Configuration Guide for Mestar.pro
+# 🌐 Domain Configuration Guide for MyStarStories.app
 
 ## Complete DNS Setup Instructions for Porkbun
 
@@ -7,8 +7,8 @@
 ## 📋 Overview
 
 This guide will help you configure:
-- **Primary Domain**: mestar.pro
-- **WWW Redirect**: www.mestar.pro → mestar.pro (301)
+- **Primary Domain**: mystarstories.app
+- **WWW Redirect**: www.mystarstories.app → mystarstories.app (301)
 - SSL certificates (automatically configured via Cloudflare)
 - DNS configuration through Porkbun
 
@@ -21,7 +21,7 @@ This guide will help you configure:
 1. Go to: https://porkbun.com/
 2. Login to your account
 3. Navigate to: **Domain Management**
-4. Find: **mestar.pro**
+4. Find: **mystarstories.app**
 5. Click: **DNS Records**
 
 ---
@@ -53,7 +53,7 @@ Record 3:
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 Type:     CNAME
 Host:     www
-Answer:   mestar.pro
+Answer:   mystarstories.app
 TTL:      600
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ```
@@ -61,10 +61,10 @@ TTL:      600
 ### Visual Summary:
 
 ```
-mestar.pro:
+mystarstories.app:
   @ → A → 104.18.10.243
   @ → A → 104.18.11.243
-  www → CNAME → mestar.pro
+  www → CNAME → mystarstories.app
 ```
 
 **Note**: Two A records provide redundancy and load balancing through Cloudflare.
@@ -88,7 +88,7 @@ mestar.pro:
 1. Click **"Add"** or **"Add Record"**
 2. Select **Type**: CNAME
 3. **Host**: www
-4. **Answer**: mestar.pro (or mestar.pro.)
+4. **Answer**: mystarstories.app
 5. **TTL**: 600
 6. Click **"Add"** or **"Submit"**
 
@@ -100,7 +100,7 @@ mestar.pro:
 
 Check DNS propagation status:
 1. Visit: https://www.whatsmydns.net/
-2. Enter: mestar.pro
+2. Enter: mystarstories.app
 3. Select: A
 4. Should show both IPs globally: 104.18.10.243 and 104.18.11.243
 
@@ -110,19 +110,19 @@ Run these in your terminal:
 
 ```bash
 # Check A records
-dig mestar.pro
+dig mystarstories.app
 
 # Should show both IPs
-# mestar.pro. 600 IN A 104.18.10.243
-# mestar.pro. 600 IN A 104.18.11.243
+# mystarstories.app. 600 IN A 104.18.10.243
+# mystarstories.app. 600 IN A 104.18.11.243
 
 # Check CNAME
-dig www.mestar.pro
+dig www.mystarstories.app
 
-# Should show: www.mestar.pro. 600 IN CNAME mestar.pro.
+# Should show: www.mystarstories.app. 600 IN CNAME mystarstories.app.
 
 # Check if site is accessible
-curl -I https://mestar.pro
+curl -I https://mystarstories.app
 ```
 
 ---
@@ -138,7 +138,7 @@ curl -I https://mestar.pro
 
 **Verify SSL:**
 ```bash
-openssl s_client -connect mestar.pro:443 -servername mestar.pro
+openssl s_client -connect mystarstories.app:443 -servername mystarstories.app
 ```
 
 ---
@@ -149,16 +149,16 @@ openssl s_client -connect mestar.pro:443 -servername mestar.pro
 
 ✅ Test these URLs work:
 ```
-https://mestar.pro
-https://www.mestar.pro (should redirect to mestar.pro)
+https://mystarstories.app
+https://www.mystarstories.app (should redirect to mystarstories.app)
 ```
 
 ✅ Test key pages:
-- Homepage: https://mestar.pro
-- Create: https://mestar.pro/create
-- FAQ: https://mestar.pro/faq
-- Checkout: https://mestar.pro/checkout
-- API: https://mestar.pro/api/health
+- Homepage: https://mystarstories.app
+- Create: https://mystarstories.app/create
+- FAQ: https://mystarstories.app/faq
+- Checkout: https://mystarstories.app/checkout
+- API: https://mystarstories.app/api/health
 
 ---
 
@@ -170,7 +170,7 @@ https://www.mestar.pro (should redirect to mestar.pro)
 |------|------|--------|-----|----------|
 | A | @ | 104.18.10.243 | 600 | Primary Cloudflare IP |
 | A | @ | 104.18.11.243 | 600 | Secondary Cloudflare IP |
-| CNAME | www | mestar.pro | 600 | WWW subdomain (redirects) |
+| CNAME | www | mystarstories.app | 600 | WWW subdomain (redirects) |
 
 ---
 
@@ -180,26 +180,20 @@ https://www.mestar.pro (should redirect to mestar.pro)
 **Solution:**
 - DNS not propagated yet (wait 30 minutes)
 - Check DNS records are correct in Porkbun
-- Clear your DNS cache: `ipconfig /flushdns` (Windows) or `sudo dscacheutil -flushcache` (Mac)
+- Clear your DNS cache
 
 ### Issue: "SSL Certificate Error"
 **Solution:**
 - Wait for SSL provisioning (usually instant with Cloudflare)
-- Try accessing without www: https://mestar.pro
+- Try accessing without www: https://mystarstories.app
 - Clear browser cache
 
 ### Issue: "www not redirecting"
 **Solution:**
-- Verify CNAME record is correct (www → mestar.pro)
+- Verify CNAME record is correct (www → mystarstories.app)
 - Check middleware.js is deployed
 - Clear browser cache
 - Try incognito mode
-
-### Issue: "Site loads but looks broken"
-**Solution:**
-- Hard refresh: Ctrl+Shift+R (Windows) or Cmd+Shift+R (Mac)
-- Clear browser cache completely
-- Check if all assets are loading in DevTools (F12) → Network tab
 
 ---
 
@@ -208,25 +202,25 @@ https://www.mestar.pro (should redirect to mestar.pro)
 After configuration:
 
 ```
-https://mestar.pro              → Your app (PRIMARY)
-https://www.mestar.pro          → 301 redirect to mestar.pro
+https://mystarstories.app              → Your app (PRIMARY)
+https://www.mystarstories.app          → 301 redirect to mystarstories.app
 ```
 
-**All traffic ends up at**: https://mestar.pro (SEO-friendly)
+**All traffic ends up at**: https://mystarstories.app (SEO-friendly)
 
 ---
 
 ## ✅ Final Checklist
 
-Before going live, verify:
+Before going live:
 
 - [ ] Added 2 A records in Porkbun (104.18.10.243 and 104.18.11.243)
 - [ ] Added CNAME record for www
-- [ ] Waited for DNS propagation (check whatsmydns.net)
-- [ ] SSL certificate working (https://mestar.pro loads with padlock)
+- [ ] Waited for DNS propagation
+- [ ] SSL certificate working (https loads with padlock)
 - [ ] www redirects to non-www
-- [ ] All pages load correctly (home, create, faq, checkout)
-- [ ] API endpoints working (/api/health)
+- [ ] All pages load correctly
+- [ ] API endpoints working
 - [ ] Mobile responsive
 - [ ] No console errors
 
@@ -238,14 +232,14 @@ Once DNS is live:
 
 1. **Update Stripe Webhook URL**:
    - Go to: https://dashboard.stripe.com/webhooks
-   - Update endpoint to: https://mestar.pro/api/webhooks/stripe
+   - Update endpoint to: https://mystarstories.app/api/webhooks/stripe
 
 2. **Submit to Google Search Console**:
-   - Add property: https://mestar.pro
-   - Submit sitemap: https://mestar.pro/sitemap.xml
+   - Add property: https://mystarstories.app
+   - Submit sitemap: https://mystarstories.app/sitemap.xml
 
 3. **Update Marketing Materials**:
-   - Update all URLs to mestar.pro
+   - Update all URLs to mystarstories.app
    - Update social media profiles
    - Update email signatures
 
@@ -265,7 +259,7 @@ Once DNS is live:
 
 ## 🎉 You're All Set!
 
-Your mestar.pro domain is configured and ready to go live!
+Your mystarstories.app domain is configured and ready to go live!
 
 **Timeline:**
 - DNS Records Added: Immediate
@@ -276,6 +270,6 @@ Your mestar.pro domain is configured and ready to go live!
 ---
 
 **Last Updated**: July 1, 2025  
-**Domain**: mestar.pro  
+**Domain**: mystarstories.app  
 **DNS Provider**: Porkbun  
 **CDN**: Cloudflare

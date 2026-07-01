@@ -1,8 +1,8 @@
-# DNS Records Quick Reference for Mestar.pro
+# DNS Records Quick Reference for MyStarStories.app
 
 ## Copy-Paste Template for Porkbun
 
-### For mestar.pro
+### For mystarstories.app
 
 ```
 Record 1:
@@ -25,7 +25,7 @@ Record 3:
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 Type:     CNAME
 Host:     www
-Answer:   mestar.pro
+Answer:   mystarstories.app
 TTL:      600
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ```
@@ -35,10 +35,10 @@ TTL:      600
 ## 📋 Visual Summary
 
 ```
-Domain: mestar.pro
+Domain: mystarstories.app
   @ → A → 104.18.10.243
   @ → A → 104.18.11.243
-  www → CNAME → mestar.pro
+  www → CNAME → mystarstories.app
 ```
 
 ---
@@ -46,8 +46,8 @@ Domain: mestar.pro
 ## ⚡ Expected Result After Configuration
 
 ```
-https://mestar.pro           → Your app (PRIMARY)
-https://www.mestar.pro       → Redirects to mestar.pro (301)
+https://mystarstories.app           → Your app (PRIMARY)
+https://www.mystarstories.app       → Redirects to mystarstories.app (301)
 ```
 
 ---
@@ -66,11 +66,11 @@ https://www.mestar.pro       → Redirects to mestar.pro (301)
 After adding DNS records:
 
 1. [ ] Wait 10 minutes
-2. [ ] Check: https://www.whatsmydns.net/ (enter mestar.pro)
+2. [ ] Check: https://www.whatsmydns.net/ (enter mystarstories.app)
 3. [ ] Verify records showing both IPs globally
-4. [ ] Try accessing: https://mestar.pro
+4. [ ] Try accessing: https://mystarstories.app
 5. [ ] Verify SSL certificate is valid (padlock icon)
-6. [ ] Test: https://www.mestar.pro redirects to mestar.pro
+6. [ ] Test: https://www.mystarstories.app redirects to mystarstories.app
 7. [ ] Test all pages load correctly
 
 ---
@@ -80,7 +80,7 @@ After adding DNS records:
 **Porkbun DNS Management:**
 1. Login: https://porkbun.com/
 2. Go to: Domain Management
-3. Select: mestar.pro
+3. Select: mystarstories.app
 4. Click: DNS Records
 5. Add the 3 records above
 

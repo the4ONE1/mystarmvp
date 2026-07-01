@@ -4,9 +4,9 @@ export function middleware(request) {
   const hostname = request.headers.get('host') || '';
   const url = request.nextUrl.clone();
 
-  // Redirect www.mestar.pro to mestar.pro
-  if (hostname === 'www.mestar.pro') {
-    url.hostname = 'mestar.pro';
+  // Redirect www.mystarstories.app to mystarstories.app
+  if (hostname === 'www.mystarstories.app') {
+    url.hostname = 'mystarstories.app';
     url.protocol = 'https:';
     return NextResponse.redirect(url, 301);
   }
