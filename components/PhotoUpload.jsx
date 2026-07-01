@@ -51,25 +51,60 @@ export function PhotoUpload({ onPhotosChange, childId = 'temp', storybookId = 't
       
       // Update status to uploading
       setFiles((prev) =>
-        prev.map((f, i) => (i === index ? { ...f, status: 'uploading', progress: 30 } : f))
+        prev.map((f, i) => (i === index ? { ...f, status: 'uploading', progress: 10 } : f))
       );
 
       const { file } = fileState;
 
-      // Simulated upload for placeholder S3
-      // In production, this would call /api/upload/presign and upload to S3
-      await new Promise((resolve) => setTimeout(resolve, 1500));
+      // Step 1: Get presigned URL from our API
+      const presignResponse = await fetch('/api/upload/presign', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          fileName: file.name,
+          fileType: file.type,
+          orderId: storybookId || 'temp',
+        }),
+      });
+
+      if (!presignResponse.ok) {
+        const errorData = await presignResponse.json();
+        throw new Error(errorData.error || 'Failed to get upload URL');
+      }
+
+      const { presignedUrl, publicUrl, key } = await presignResponse.json();
       
       setFiles((prev) =>
-        prev.map((f, i) => (i === index ? { ...f, status: 'uploading', progress: 70 } : f))
+        prev.map((f, i) => (i === index ? { ...f, status: 'uploading', progress: 30 } : f))
       );
 
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      // Step 2: Upload directly to S3 using presigned URL
+      const uploadResponse = await fetch(presignedUrl, {
+        method: 'PUT',
+        body: file,
+        headers: {
+          'Content-Type': file.type,
+        },
+      });
 
-      // Mark as uploaded
+      if (!uploadResponse.ok) {
+        throw new Error('Failed to upload to S3');
+      }
+      
+      setFiles((prev) =>
+        prev.map((f, i) => (i === index ? { ...f, status: 'uploading', progress: 90 } : f))
+      );
+
+      // Mark as uploaded with the S3 URL
       setFiles((prev) =>
         prev.map((f, i) =>
-          i === index ? { ...f, status: 'uploaded', progress: 100, url: fileState.preview } : f
+          i === index ? { 
+            ...f, 
+            status: 'uploaded', 
+            progress: 100, 
+            url: publicUrl,
+            s3Key: key 
+          } : f
         )
       );
     } catch (error) {
