@@ -1,37 +1,44 @@
-# DNS Records Quick Reference for MyStarStories.shop
+# DNS Records Quick Reference for Mestar.pro
 
-## Step-by-Step: What to Add in Your DNS Settings
+## Copy-Paste Template for Porkbun
 
-### For mystarstories.shop
+### For mestar.pro
 
 ```
 Record 1:
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 Type:     A
-Host:     @ (or leave blank for root)
-Points to: [CONTACT EMERGENT FOR IP ADDRESS]
-TTL:      3600 (or Auto)
+Host:     @
+Answer:   104.18.10.243
+TTL:      600
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 Record 2:
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 Type:     A
+Host:     @
+Answer:   104.18.11.243
+TTL:      600
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Record 3:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Type:     CNAME
 Host:     www
-Points to: [SAME IP AS ABOVE]
-TTL:      3600 (or Auto)
+Answer:   mestar.pro
+TTL:      600
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ```
 
 ---
 
-## 📋 Copy-Paste Template
-
-After Emergent provides your IP address (example: 104.248.123.45):
+## 📋 Visual Summary
 
 ```
-Domain: mystarstories.shop
-  @ → A → 104.248.123.45
-  www → A → 104.248.123.45
+Domain: mestar.pro
+  @ → A → 104.18.10.243
+  @ → A → 104.18.11.243
+  www → CNAME → mestar.pro
 ```
 
 ---
@@ -39,35 +46,18 @@ Domain: mystarstories.shop
 ## ⚡ Expected Result After Configuration
 
 ```
-https://mystarstories.shop           → Your app (PRIMARY)
-https://www.mystarstories.shop       → Your app (works)
+https://mestar.pro           → Your app (PRIMARY)
+https://www.mestar.pro       → Redirects to mestar.pro (301)
 ```
-
----
-
-## 📞 First Action Required
-
-**YOU MUST DO THIS FIRST:**
-
-Contact Emergent Agent Support:
-- Email: support@emergentagent.com
-- Subject: "DNS Configuration for mestar-stories app"
-- Message: "Please provide the IP address or CNAME target for my app at mestar-stories.preview.emergentagent.com so I can configure mystarstories.shop"
-
-They will reply with something like:
-- IP Address: 104.248.123.45
-- OR CNAME: mestar-stories.emergentagent.com
-
-Then use that information in the DNS records above!
 
 ---
 
 ## ⏱️ Timeline
 
 - DNS Record Addition: 5 minutes
-- DNS Propagation: 1-48 hours (usually 1-4 hours)
-- SSL Certificate: Auto-provisioned within 24 hours
-- Full Site Live: Within 48 hours
+- DNS Propagation: 5-30 minutes (TTL 600)
+- SSL Certificate: Active immediately (Cloudflare)
+- Full Site Live: Within 30 minutes
 
 ---
 
@@ -75,13 +65,25 @@ Then use that information in the DNS records above!
 
 After adding DNS records:
 
-1. [ ] Wait 1 hour
-2. [ ] Check: https://www.whatsmydns.net/ (enter mystarstories.shop)
-3. [ ] Verify records showing your IP globally
-4. [ ] Try accessing: https://mystarstories.shop
+1. [ ] Wait 10 minutes
+2. [ ] Check: https://www.whatsmydns.net/ (enter mestar.pro)
+3. [ ] Verify records showing both IPs globally
+4. [ ] Try accessing: https://mestar.pro
 5. [ ] Verify SSL certificate is valid (padlock icon)
-6. [ ] Test all pages load correctly
+6. [ ] Test: https://www.mestar.pro redirects to mestar.pro
+7. [ ] Test all pages load correctly
 
 ---
 
-**Need Help?** See DOMAIN_CONFIGURATION_GUIDE.md for detailed troubleshooting!
+## 🔗 Where to Configure
+
+**Porkbun DNS Management:**
+1. Login: https://porkbun.com/
+2. Go to: Domain Management
+3. Select: mestar.pro
+4. Click: DNS Records
+5. Add the 3 records above
+
+---
+
+**Need Help?** See DOMAIN_CONFIGURATION_GUIDE.md for detailed instructions!

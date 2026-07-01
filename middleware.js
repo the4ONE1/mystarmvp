@@ -4,15 +4,12 @@ export function middleware(request) {
   const hostname = request.headers.get('host') || '';
   const url = request.nextUrl.clone();
 
-  // Optional: Redirect www.mystarstories.shop to mystarstories.shop
-  // Remove the comment below if you want to enforce non-www
-  /*
-  if (hostname === 'www.mystarstories.shop') {
-    url.hostname = 'mystarstories.shop';
+  // Redirect www.mestar.pro to mestar.pro
+  if (hostname === 'www.mestar.pro') {
+    url.hostname = 'mestar.pro';
     url.protocol = 'https:';
     return NextResponse.redirect(url, 301);
   }
-  */
 
   return NextResponse.next();
 }

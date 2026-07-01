@@ -1,185 +1,176 @@
-# 🌐 Custom Domain Configuration Guide for MyStarStories.shop
+# 🌐 Domain Configuration Guide for Mestar.pro
 
-## Complete DNS Setup Instructions
+## Complete DNS Setup Instructions for Porkbun
 
 ---
 
 ## 📋 Overview
 
 This guide will help you configure:
-- **Primary Domain**: mystarstories.shop
-- SSL certificates (automatically configured)
-- DNS propagation verification
+- **Primary Domain**: mestar.pro
+- **WWW Redirect**: www.mestar.pro → mestar.pro (301)
+- SSL certificates (automatically configured via Cloudflare)
+- DNS configuration through Porkbun
 
 ---
 
-## STEP 1: Get Your App's Server Information
+## STEP 1: Configure DNS Records in Porkbun
 
-### Contact Emergent Agent Support
+### Login to Porkbun
 
-Before configuring DNS, you need to get your app's routing information:
-
-**Contact Emergent Support:**
-1. Email: support@emergentagent.com
-2. Subject: "DNS Configuration for mestar-stories app"
-3. Message: "Please provide the IP address or CNAME target for my app at mestar-stories.preview.emergentagent.com so I can configure mystarstories.shop"
-
-4. They will provide you with EITHER:
-   - **Server IP Address**: `XXX.XXX.XXX.XXX` (A record)
-   - **CNAME Target**: `your-app.emergentagent.com` (CNAME record)
+1. Go to: https://porkbun.com/
+2. Login to your account
+3. Navigate to: **Domain Management**
+4. Find: **mestar.pro**
+5. Click: **DNS Records**
 
 ---
 
-## STEP 2: Configure DNS Records for mystarstories.shop
+## STEP 2: Add DNS Records
 
-### DNS Records to Add (Choose Option A OR B based on what Emergent provides)
+### Required DNS Records (Cloudflare IPs)
 
-#### **OPTION A: If Emergent Provides an IP Address**
-
-Add these **A Records**:
+Add these **3 records** exactly as shown:
 
 ```
-Type: A
-Name: @
-Value: [IP_ADDRESS_FROM_EMERGENT]
-TTL: 3600
+Record 1:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Type:     A
+Host:     @ (or leave blank for root)
+Answer:   104.18.10.243
+TTL:      600
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-Type: A
-Name: www
-Value: [IP_ADDRESS_FROM_EMERGENT]
-TTL: 3600
+Record 2:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Type:     A
+Host:     @ (or leave blank for root)
+Answer:   104.18.11.243
+TTL:      600
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Record 3:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Type:     CNAME
+Host:     www
+Answer:   mestar.pro
+TTL:      600
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ```
 
-**Example with actual IP (104.248.123.45):**
+### Visual Summary:
+
 ```
-mystarstories.shop:
-  @ → A → 104.248.123.45
-  www → A → 104.248.123.45
+mestar.pro:
+  @ → A → 104.18.10.243
+  @ → A → 104.18.11.243
+  www → CNAME → mestar.pro
 ```
+
+**Note**: Two A records provide redundancy and load balancing through Cloudflare.
 
 ---
 
-#### **OPTION B: If Emergent Provides a CNAME Target**
+## STEP 3: How to Add in Porkbun Interface
 
-```
-Type: CNAME
-Name: www
-Value: [CNAME_FROM_EMERGENT]
-TTL: 3600
+### Adding A Records:
 
-Type: A or ALIAS
-Name: @
-Value: [IP_OR_ALIAS_FROM_EMERGENT]
-TTL: 3600
-```
+1. Click **"Add"** or **"Add Record"**
+2. Select **Type**: A
+3. **Host**: @ (leave as @ or blank)
+4. **Answer**: 104.18.10.243
+5. **TTL**: 600
+6. Click **"Add"** or **"Submit"**
+7. **Repeat** for second A record with IP: 104.18.11.243
 
-**Example with CNAME (mestar-stories.emergentagent.com):**
-```
-mystarstories.shop:
-  www → CNAME → mestar-stories.emergentagent.com
-  @ → A → 104.248.123.45
-```
+### Adding CNAME Record:
 
----
-
-## STEP 3: Where to Configure DNS
-
-### Common Domain Registrars:
-
-**Namecheap:**
-1. Login → Domain List → Manage
-2. Advanced DNS → Add New Record
-3. Type: A Record, Host: @, Value: [IP]
-
-**GoDaddy:**
-1. Login → My Products → DNS
-2. Add → Type: A, Name: @, Value: [IP]
-
-**Cloudflare:**
-1. Login → Select Domain → DNS
-2. Add Record → Type: A, Name: @, Content: [IP]
+1. Click **"Add"** or **"Add Record"**
+2. Select **Type**: CNAME
+3. **Host**: www
+4. **Answer**: mestar.pro (or mestar.pro.)
+5. **TTL**: 600
+6. Click **"Add"** or **"Submit"**
 
 ---
 
 ## STEP 4: Verify DNS Configuration
 
-### Wait for DNS Propagation (typically 1-48 hours)
+### Wait for DNS Propagation (5-30 minutes with TTL 600)
 
 Check DNS propagation status:
 1. Visit: https://www.whatsmydns.net/
-2. Enter: mystarstories.shop
-3. Select: A (if using IP) or CNAME (if using CNAME)
-4. Check if your records are showing globally
+2. Enter: mestar.pro
+3. Select: A
+4. Should show both IPs globally: 104.18.10.243 and 104.18.11.243
 
 ### Quick Verification Commands
 
+Run these in your terminal:
+
 ```bash
 # Check A records
-dig mystarstories.shop
-dig www.mystarstories.shop
+dig mestar.pro
+
+# Should show both IPs
+# mestar.pro. 600 IN A 104.18.10.243
+# mestar.pro. 600 IN A 104.18.11.243
+
+# Check CNAME
+dig www.mestar.pro
+
+# Should show: www.mestar.pro. 600 IN CNAME mestar.pro.
 
 # Check if site is accessible
-curl -I https://mystarstories.shop
+curl -I https://mestar.pro
 ```
 
 ---
 
-## STEP 5: SSL Certificate Configuration
+## STEP 5: SSL Certificate
 
-### Automatic SSL (Recommended)
+### Automatic SSL via Cloudflare
 
-If using Emergent Agent hosting:
-- SSL certificates will be **automatically provisioned**
-- Uses Let's Encrypt
+- SSL certificates are **automatically provisioned** via Cloudflare
+- HTTPS will work immediately once DNS propagates
 - Auto-renewal configured
 - No action needed!
 
----
-
-## STEP 6: Update Application Environment
-
-Once DNS is configured and propagating:
-
+**Verify SSL:**
 ```bash
-# Copy production environment file
-cd /app
-cp .env.production .env
-
-# Restart the application
-sudo supervisorctl restart nextjs
-
-# Verify it's running
-curl https://mystarstories.shop/api/health
+openssl s_client -connect mestar.pro:443 -servername mestar.pro
 ```
 
 ---
 
-## STEP 7: Test Everything
+## STEP 6: Test Everything
 
 ### Domain Tests
 
 ✅ Test these URLs work:
 ```
-https://mystarstories.shop
-https://www.mystarstories.shop
+https://mestar.pro
+https://www.mestar.pro (should redirect to mestar.pro)
 ```
 
 ✅ Test key pages:
-- Homepage: https://mystarstories.shop
-- Create: https://mystarstories.shop/create
-- FAQ: https://mystarstories.shop/faq
-- API: https://mystarstories.shop/api/health
+- Homepage: https://mestar.pro
+- Create: https://mestar.pro/create
+- FAQ: https://mestar.pro/faq
+- Checkout: https://mestar.pro/checkout
+- API: https://mestar.pro/api/health
 
 ---
 
-## 📊 Complete DNS Configuration Summary
+## 📊 DNS Configuration Summary
 
 ### Quick Reference Table
 
-| Domain | Record Type | Name | Value | Purpose |
-|--------|-------------|------|-------|----------|
-| mystarstories.shop | A | @ | [IP] | Root domain |
-| mystarstories.shop | A | www | [IP] | www subdomain |
+| Type | Host | Answer | TTL | Purpose |
+|------|------|--------|-----|----------|
+| A | @ | 104.18.10.243 | 600 | Primary Cloudflare IP |
+| A | @ | 104.18.11.243 | 600 | Secondary Cloudflare IP |
+| CNAME | www | mestar.pro | 600 | WWW subdomain (redirects) |
 
 ---
 
@@ -187,46 +178,104 @@ https://www.mystarstories.shop
 
 ### Issue: "DNS_PROBE_FINISHED_NXDOMAIN"
 **Solution:**
-- DNS not propagated yet (wait 24-48 hours)
-- Check DNS records are correct
-- Clear your DNS cache
+- DNS not propagated yet (wait 30 minutes)
+- Check DNS records are correct in Porkbun
+- Clear your DNS cache: `ipconfig /flushdns` (Windows) or `sudo dscacheutil -flushcache` (Mac)
 
 ### Issue: "SSL Certificate Error"
 **Solution:**
-- Wait for SSL provisioning (can take up to 24 hours)
-- Contact Emergent support if using their hosting
+- Wait for SSL provisioning (usually instant with Cloudflare)
+- Try accessing without www: https://mestar.pro
+- Clear browser cache
+
+### Issue: "www not redirecting"
+**Solution:**
+- Verify CNAME record is correct (www → mestar.pro)
+- Check middleware.js is deployed
+- Clear browser cache
+- Try incognito mode
 
 ### Issue: "Site loads but looks broken"
 **Solution:**
 - Hard refresh: Ctrl+Shift+R (Windows) or Cmd+Shift+R (Mac)
-- Clear browser cache
+- Clear browser cache completely
+- Check if all assets are loading in DevTools (F12) → Network tab
 
 ---
 
-## 📞 Support Contacts
+## ⚡ Expected Behavior
 
-### Emergent Agent Support
-- **Email**: support@emergentagent.com
-- **Purpose**: Server IP, CNAME target, SSL issues
+After configuration:
+
+```
+https://mestar.pro              → Your app (PRIMARY)
+https://www.mestar.pro          → 301 redirect to mestar.pro
+```
+
+**All traffic ends up at**: https://mestar.pro (SEO-friendly)
 
 ---
 
 ## ✅ Final Checklist
 
-Before going live:
+Before going live, verify:
 
-- [ ] Contacted Emergent for server IP or CNAME
-- [ ] Added DNS records for mystarstories.shop
-- [ ] Waited for DNS propagation
-- [ ] SSL certificates provisioned
-- [ ] Domain accessible via HTTPS
-- [ ] All pages load correctly
-- [ ] API endpoints working
-- [ ] Stripe keys added (if ready)
-- [ ] AWS S3 credentials added (if ready)
-- [ ] Tested complete purchase flow
+- [ ] Added 2 A records in Porkbun (104.18.10.243 and 104.18.11.243)
+- [ ] Added CNAME record for www
+- [ ] Waited for DNS propagation (check whatsmydns.net)
+- [ ] SSL certificate working (https://mestar.pro loads with padlock)
+- [ ] www redirects to non-www
+- [ ] All pages load correctly (home, create, faq, checkout)
+- [ ] API endpoints working (/api/health)
+- [ ] Mobile responsive
+- [ ] No console errors
 
 ---
 
-**Last Updated**: June 29, 2025  
-**Domain**: mystarstories.shop
+## 🚀 Post-Deployment
+
+Once DNS is live:
+
+1. **Update Stripe Webhook URL**:
+   - Go to: https://dashboard.stripe.com/webhooks
+   - Update endpoint to: https://mestar.pro/api/webhooks/stripe
+
+2. **Submit to Google Search Console**:
+   - Add property: https://mestar.pro
+   - Submit sitemap: https://mestar.pro/sitemap.xml
+
+3. **Update Marketing Materials**:
+   - Update all URLs to mestar.pro
+   - Update social media profiles
+   - Update email signatures
+
+---
+
+## 📞 Support
+
+**Porkbun Support:**
+- Website: https://porkbun.com/support
+- For: DNS configuration issues
+
+**Cloudflare:**
+- Dashboard: https://dash.cloudflare.com/
+- For: SSL issues, CDN configuration
+
+---
+
+## 🎉 You're All Set!
+
+Your mestar.pro domain is configured and ready to go live!
+
+**Timeline:**
+- DNS Records Added: Immediate
+- DNS Propagation: 5-30 minutes
+- SSL Active: Immediate (via Cloudflare)
+- Fully Live: Within 30 minutes
+
+---
+
+**Last Updated**: July 1, 2025  
+**Domain**: mestar.pro  
+**DNS Provider**: Porkbun  
+**CDN**: Cloudflare
