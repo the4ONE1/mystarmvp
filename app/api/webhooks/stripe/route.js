@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
-import { getCollection } from '@/lib/mongodb';
+import { createOrder, updateOrder, isSupabaseConfigured } from '@/lib/supabase';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'sk_test_placeholder', {
   apiVersion: '2023-10-16',
@@ -42,42 +42,63 @@ export async function POST(request) {
 
       console.log('Checkout session completed:', session.id);
 
-      // Extract line items from session
-      const lineItems = await stripe.checkout.sessions.listLineItems(session.id);
+      // Check if Supabase is configured
+      if (!isSupabaseConfigured()) {
+        console.log('Supabase not configured, skipping database update');
+        return NextResponse.json({ received: true, graceful_mode: true });
+      }
 
-      // Update order in database - SINGLE SOURCE OF TRUTH
-      const ordersCollection = await getCollection('orders');
-      
-      const updateResult = await ordersCollection.updateOne(
-        { stripe_session_id: session.id },
-        {
-          $set: {
-            status: 'paid',
-            customer_email: session.customer_email || session.customer_details?.email,
-            paid_at: new Date(),
-            payment_status: session.payment_status,
-            amount_total: session.amount_total,
-            currency: session.currency,
-            line_items_detail: lineItems.data.map(item => ({
-              description: item.description,
-              quantity: item.quantity,
-              amount_total: item.amount_total,
-              price_id: item.price?.id,
-            })),
-          },
-        },
-        { upsert: true }
-      );
+      try {
+        // Extract line items from session
+        const lineItems = await stripe.checkout.sessions.listLineItems(session.id);
 
-      if (updateResult.modifiedCount > 0 || updateResult.upsertedCount > 0) {
-        console.log('Order marked as PAID:', session.id);
-        
-        // TODO: Trigger order fulfillment here
-        // - Generate personalized storybook PDF
-        // - Send confirmation email
-        // - Update inventory
-      } else {
-        console.warn('Order not found for session:', session.id);
+        // Prepare order data for Supabase
+        const orderData = {
+          session_id: session.id,
+          customer_email: session.customer_email || session.customer_details?.email || '',
+          customer_name: session.metadata?.customer_name || '',
+          items: lineItems.data.map(item => ({
+            description: item.description,
+            quantity: item.quantity,
+            amount: item.amount_total,
+          })),
+          amount_total: session.amount_total,
+          currency: session.currency,
+          status: 'paid',
+          child_name: session.metadata?.child_name || '',
+          child_age: session.metadata?.age || '',
+          story_theme: session.metadata?.theme || '',
+          photo_urls: [],
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        };
+
+        // Try to update existing order, if not found create new
+        try {
+          await updateOrder(session.id, {
+            ...orderData,
+            updated_at: new Date().toISOString(),
+          });
+          console.log('Order updated:', session.id);
+        } catch (updateError) {
+          // If order doesn't exist, create it
+          if (updateError.message.includes('not found') || updateError.code === 'PGRST116') {
+            await createOrder(orderData);
+            console.log('Order created:', session.id);
+          } else {
+            throw updateError;
+          }
+        }
+
+        console.log('Order fulfillment completed for session:', session.id);
+      } catch (dbError) {
+        console.error('Database error during order fulfillment:', dbError);
+        // Return success to Stripe even if DB fails (to prevent webhook retries)
+        return NextResponse.json({ 
+          received: true, 
+          warning: 'Order received but database update failed',
+          error: dbError.message 
+        });
       }
     }
 

@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
-import { getCollection } from '@/lib/mongodb';
+import { createOrder, isSupabaseConfigured } from '@/lib/supabase';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
   apiVersion: '2023-10-16',
@@ -81,27 +81,31 @@ export async function POST(request) {
       },
     });
 
-    // Create pending order in database
-    const ordersCollection = await getCollection('orders');
-    await ordersCollection.insertOne({
-      stripe_session_id: session.id,
-      customer_email: customerEmail,
-      customer_name: customerName || '',
-      status: 'pending',
-      line_items: lineItems.map(item => ({
-        price_id: item.price,
-        quantity: item.quantity,
-      })),
-      metadata: {
-        child_name: childName,
-        age: String(childAgeValue || ''),
-        gender: gender || '',
-        theme: theme,
-        dedication: dedication || '',
-        selected_addons: selectedAddons,
-      },
-      created_at: new Date(),
-    });
+    // Create pending order in Supabase (if configured)
+    if (isSupabaseConfigured()) {
+      try {
+        await createOrder({
+          session_id: session.id,
+          customer_email: customerEmail,
+          customer_name: customerName || '',
+          items: lineItems.map(item => ({
+            price_id: item.price,
+            quantity: item.quantity,
+          })),
+          amount_total: null, // Will be updated by webhook
+          currency: 'usd',
+          status: 'pending',
+          child_name: childName,
+          child_age: String(childAgeValue || ''),
+          story_theme: theme,
+          photo_urls: [],
+          created_at: new Date().toISOString(),
+        });
+      } catch (dbError) {
+        console.error('Failed to create order in Supabase:', dbError);
+        // Continue anyway - webhook will handle it
+      }
+    }
 
     return NextResponse.json({
       sessionId: session.id,

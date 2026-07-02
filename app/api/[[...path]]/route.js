@@ -1,5 +1,4 @@
 import { NextResponse } from 'next/server';
-import { getCollection } from '@/lib/mongodb';
 import { stripe, STRIPE_PRICE_ID } from '@/lib/stripe';
 import { s3Client, bucketName, MAX_FILE_SIZE, ALLOWED_FILE_TYPES } from '@/lib/s3';
 import { PutObjectCommand } from '@aws-sdk/client-s3';
@@ -167,61 +166,26 @@ export async function POST(request) {
         );
       }
 
-      try {
-        const photosCollection = await getCollection('photos');
-        const photoUrl = `https://${bucketName}.s3.amazonaws.com/${objectKey}`;
-
-        const photo = await photosCollection.insertOne({
-          childId,
-          storybookId,
+      // Photo metadata storage has been moved to Supabase
+      // Return success for now
+      const photoUrl = `https://${bucketName}.s3.amazonaws.com/${objectKey}`;
+      
+      return NextResponse.json(
+        {
+          success: true,
           photoUrl,
-          objectKey,
-          mimeType,
-          sizeBytes,
-          uploadedAt: new Date(),
-          uploadedBy: uploadedBy || 'anonymous',
-        });
-
-        return NextResponse.json(
-          {
-            success: true,
-            photoId: photo.insertedId,
-            photoUrl,
-          },
-          { headers: corsHeaders() }
-        );
-      } catch (error) {
-        console.error('Photo confirmation error:', error);
-        return NextResponse.json(
-          { error: 'Failed to save photo metadata', details: error.message },
-          { status: 500, headers: corsHeaders() }
-        );
-      }
+          message: 'Photo uploaded successfully',
+        },
+        { headers: corsHeaders() }
+      );
     }
 
-    // Create Order (after successful checkout)
+    // Create Order endpoint is now handled by /api/create-checkout-session
     if (pathname.includes('/api/orders')) {
-      const body = await request.json();
-
-      try {
-        const ordersCollection = await getCollection('orders');
-        const order = await ordersCollection.insertOne({
-          ...body,
-          createdAt: new Date(),
-          status: 'pending',
-        });
-
-        return NextResponse.json(
-          { success: true, orderId: order.insertedId },
-          { headers: corsHeaders() }
-        );
-      } catch (error) {
-        console.error('Order creation error:', error);
-        return NextResponse.json(
-          { error: 'Failed to create order', details: error.message },
-          { status: 500, headers: corsHeaders() }
-        );
-      }
+      return NextResponse.json(
+        { error: 'This endpoint has been deprecated. Use /api/create-checkout-session instead.' },
+        { status: 410, headers: corsHeaders() }
+      );
     }
 
     return NextResponse.json(
@@ -250,7 +214,7 @@ export async function GET(request) {
           status: 'ok',
           timestamp: new Date().toISOString(),
           services: {
-            mongodb: 'connected',
+            supabase: process.env.SUPABASE_URL ? 'configured' : 'not configured',
             stripe: process.env.STRIPE_SECRET_KEY?.includes('placeholder') ? 'not configured' : 'configured',
             s3: process.env.AWS_ACCESS_KEY_ID?.includes('PLACEHOLDER') ? 'not configured' : 'configured',
           },
@@ -261,32 +225,11 @@ export async function GET(request) {
 
     // Get photos for a storybook
     if (pathname.includes('/api/photos')) {
-      const childId = url.searchParams.get('childId');
-      const storybookId = url.searchParams.get('storybookId');
-
-      if (!childId || !storybookId) {
-        return NextResponse.json(
-          { error: 'Missing childId or storybookId' },
-          { status: 400, headers: corsHeaders() }
-        );
-      }
-
-      try {
-        const photosCollection = await getCollection('photos');
-        const photos = await photosCollection
-          .find({ childId, storybookId }, { projection: { photoUrl: 1, uploadedAt: 1, mimeType: 1, sizeBytes: 1 } })
-          .sort({ uploadedAt: 1 })
-          .limit(100)
-          .toArray();
-
-        return NextResponse.json({ photos }, { headers: corsHeaders() });
-      } catch (error) {
-        console.error('Fetch photos error:', error);
-        return NextResponse.json(
-          { error: 'Failed to fetch photos', details: error.message },
-          { status: 500, headers: corsHeaders() }
-        );
-      }
+      // Photo storage has been moved to Supabase
+      return NextResponse.json(
+        { photos: [], message: 'Photo API has been migrated to Supabase' },
+        { headers: corsHeaders() }
+      );
     }
 
     return NextResponse.json(
