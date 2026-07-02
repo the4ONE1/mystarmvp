@@ -100,15 +100,25 @@ export default function CheckoutPage() {
 
       const data = await response.json();
 
+      // Check for errors from the API
+      if (!response.ok) {
+        console.error('API Error:', data);
+        alert(`Checkout failed: ${data.error || 'Unknown error'}. ${data.details || ''}`);
+        return;
+      }
+
       if (data.url) {
         // Redirect to Stripe Checkout
         window.location.href = data.url;
+      } else if (data.error) {
+        console.error('Checkout error:', data);
+        alert(`Checkout failed: ${data.error}. ${data.details || 'Please try again.'}`);
       } else {
         alert('Checkout failed. Please try again.');
       }
     } catch (error) {
       console.error('Checkout error:', error);
-      alert('An error occurred. Please try again.');
+      alert(`An error occurred: ${error.message}. Please try again.`);
     } finally {
       setIsProcessing(false);
     }
