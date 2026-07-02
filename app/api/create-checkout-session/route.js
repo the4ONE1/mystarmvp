@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { getCollection } from '@/lib/mongodb';
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'sk_test_placeholder', {
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
   apiVersion: '2023-10-16',
 });
 
@@ -13,6 +13,7 @@ export async function POST(request) {
     const body = await request.json();
     const { 
       customerEmail, 
+      customerName,
       childName, 
       age,
       gender,
@@ -29,47 +30,7 @@ export async function POST(request) {
       );
     }
 
-    // Check if Stripe is configured
-    const isStripeConfigured = 
-      process.env.STRIPE_SECRET_KEY && 
-      !process.env.STRIPE_SECRET_KEY.includes('placeholder') &&
-      process.env.STRIPE_PRICE_MAIN_STORY &&
-      !process.env.STRIPE_PRICE_MAIN_STORY.includes('placeholder');
-
-    if (!isStripeConfigured) {
-      // Mock mode - create order directly as 'pending'
-      const ordersCollection = await getCollection('orders');
-      const order = await ordersCollection.insertOne({
-        stripe_session_id: `mock_${Date.now()}`,
-        customer_email: customerEmail,
-        status: 'pending',
-        line_items: [
-          { price_id: 'price_placeholder_main', description: 'Personalized Storybook', quantity: 1, amount: 1999 },
-          ...selectedAddons.map(addon => ({
-            price_id: addon.priceId,
-            description: addon.name,
-            quantity: 1,
-            amount: addon.price
-          }))
-        ],
-        metadata: {
-          child_name: childName,
-          age: String(age || ''),
-          gender: gender || '',
-          theme: theme,
-          dedication: dedication || '',
-        },
-        created_at: new Date(),
-      });
-
-      return NextResponse.json({
-        sessionId: `mock_${Date.now()}`,
-        url: `${DOMAIN_URL}/order-confirmation?session_id=mock_${Date.now()}`,
-        mockMode: true,
-      });
-    }
-
-    // Build line items array
+    // Build line items array - Main story is always included
     const lineItems = [
       {
         price: process.env.STRIPE_PRICE_MAIN_STORY,
@@ -77,16 +38,19 @@ export async function POST(request) {
       },
     ];
 
-    // Add optional add-ons
-    const addonMapping = {
-      'extra-character': process.env.STRIPE_PRICE_ADDON_EXTRA_CHARACTER,
-      'gift-wrap': process.env.STRIPE_PRICE_ADDON_GIFT_WRAP,
-      'express-delivery': process.env.STRIPE_PRICE_ADDON_EXPRESS,
+    // Add-on Price ID mapping
+    const addonPriceMapping = {
+      'audiobook': process.env.STRIPE_PRICE_AUDIOBOOK,
+      'coloring-book': process.env.STRIPE_PRICE_COLORING_BOOK,
+      'additional-character': process.env.STRIPE_PRICE_ADDITIONAL_CHARACTER,
     };
 
-    selectedAddons.forEach(addonId => {
-      const priceId = addonMapping[addonId];
-      if (priceId && !priceId.includes('placeholder')) {
+    // Add selected add-ons to line items
+    selectedAddons.forEach(addon => {
+      const addonId = typeof addon === 'string' ? addon : addon.id;
+      const priceId = addonPriceMapping[addonId];
+      
+      if (priceId) {
         lineItems.push({
           price: priceId,
           quantity: 1,
@@ -103,12 +67,13 @@ export async function POST(request) {
       success_url: `${DOMAIN_URL}/order-confirmation?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${DOMAIN_URL}/checkout?canceled=true`,
       metadata: {
+        customer_name: customerName || '',
         child_name: childName,
         age: String(age || ''),
         gender: gender || '',
         theme: theme,
         dedication: dedication || '',
-        story_options: JSON.stringify({ selectedAddons }),
+        selected_addons: JSON.stringify(selectedAddons),
       },
     });
 
@@ -117,6 +82,7 @@ export async function POST(request) {
     await ordersCollection.insertOne({
       stripe_session_id: session.id,
       customer_email: customerEmail,
+      customer_name: customerName || '',
       status: 'pending',
       line_items: lineItems.map(item => ({
         price_id: item.price,
@@ -128,6 +94,7 @@ export async function POST(request) {
         gender: gender || '',
         theme: theme,
         dedication: dedication || '',
+        selected_addons: selectedAddons,
       },
       created_at: new Date(),
     });

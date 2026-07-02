@@ -13,28 +13,28 @@ import { ArrowLeft, CreditCard, Lock, Sparkles, Plus } from 'lucide-react';
 
 const ADDONS = [
   {
-    id: 'extra-character',
-    name: 'Add Extra Character',
+    id: 'audiobook',
+    name: 'Audiobook Add-on',
+    description: 'Professional narration of your personalized story',
+    price: 999,
+    priceDisplay: '$9.99',
+    priceId: process.env.STRIPE_PRICE_AUDIOBOOK || 'price_1ToKcS2Y59OoFxxwZGKL6fKa',
+  },
+  {
+    id: 'coloring-book',
+    name: 'Coloring Book Add-on',
+    description: 'Printable coloring pages featuring your story',
+    price: 399,
+    priceDisplay: '$3.99',
+    priceId: process.env.STRIPE_PRICE_COLORING_BOOK || 'price_1ToKZU2Y59OoFxxwMj9qkHN8',
+  },
+  {
+    id: 'additional-character',
+    name: 'Additional Character',
     description: 'Add a sibling, friend, or pet to the story',
     price: 999,
     priceDisplay: '$9.99',
-    priceId: process.env.STRIPE_PRICE_ADDON_EXTRA_CHARACTER,
-  },
-  {
-    id: 'gift-wrap',
-    name: 'Premium Gift Wrapping',
-    description: 'Beautiful gift wrap with personalized card',
-    price: 499,
-    priceDisplay: '$4.99',
-    priceId: process.env.STRIPE_PRICE_ADDON_GIFT_WRAP,
-  },
-  {
-    id: 'express-delivery',
-    name: 'Express Delivery',
-    description: 'Receive your storybook in 1-2 days',
-    price: 1299,
-    priceDisplay: '$12.99',
-    priceId: process.env.STRIPE_PRICE_ADDON_EXPRESS,
+    priceId: process.env.STRIPE_PRICE_ADDITIONAL_CHARACTER || 'price_1ToK1g2Y59OoFxxw9tWcOySa',
   },
 ];
 
@@ -103,9 +103,6 @@ export default function CheckoutPage() {
       if (data.url) {
         // Redirect to Stripe Checkout
         window.location.href = data.url;
-      } else if (data.mockMode) {
-        // Mock mode - redirect to confirmation
-        router.push(`/order-confirmation?session_id=${data.sessionId}`);
       } else {
         alert('Checkout failed. Please try again.');
       }
