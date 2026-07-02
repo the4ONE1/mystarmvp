@@ -1,13 +1,13 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { CheckCircle2, Loader2, XCircle, Sparkles, Download, Mail } from 'lucide-react';
 
-export default function OrderConfirmationPage() {
+function OrderConfirmationContent() {
   const searchParams = useSearchParams();
   const sessionId = searchParams.get('session_id');
   
@@ -100,137 +100,184 @@ export default function OrderConfirmationPage() {
     });
   }, [sessionId, pollCount]);
 
-  if (!sessionId) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center p-4">
-        <Card className="max-w-md w-full bg-card border-2 border-border">
-          <CardContent className="p-12 text-center">
-            <XCircle className="w-16 h-16 text-destructive mx-auto mb-4" />
-            <h1 className="text-2xl font-display font-bold mb-2">Invalid Session</h1>
-            <p className="text-muted-foreground mb-6">
-              No order session found. Please try creating a new order.
-            </p>
-            <Link href="/create">
-              <Button className="bg-primary text-primary-foreground hover:bg-primary/90 font-display rounded-full">
-                Create New Story
-              </Button>
+  return (
+    <div className="min-h-screen bg-background">
+      {/* Header */}
+      <nav className="bg-background/80 backdrop-blur-lg border-b border-border sticky top-0 z-50">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            <Link href="/" className="flex items-center space-x-2">
+              <span className="text-2xl font-display font-bold text-primary drop-shadow-[0_0_10px_hsl(43_75%_62%/0.5)]">
+                MESTAR
+              </span>
             </Link>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
-
-  if (orderStatus === 'checking') {
-    return (
-      <div className="min-h-screen bg-background stars-bg relative">
-        <div className="absolute inset-0 bg-gradient-to-b from-background via-background/95 to-background" />
-        <div className="relative z-10 flex items-center justify-center min-h-screen p-4">
-          <Card className="max-w-2xl w-full bg-card border-2 border-primary/30">
-            <CardContent className="p-12 text-center">
-              <Loader2 className="w-16 h-16 text-primary mx-auto mb-4 animate-spin" />
-              <h1 className="text-3xl font-display font-bold mb-4">Processing Your Order...</h1>
-              <p className="text-lg text-muted-foreground mb-4">
-                Please wait while we confirm your payment with our payment processor.
-              </p>
-              <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
-                <div className="flex gap-1">
-                  <div className="w-2 h-2 bg-primary rounded-full animate-pulse" style={{ animationDelay: '0ms' }} />
-                  <div className="w-2 h-2 bg-primary rounded-full animate-pulse" style={{ animationDelay: '150ms' }} />
-                  <div className="w-2 h-2 bg-primary rounded-full animate-pulse" style={{ animationDelay: '300ms' }} />
-                </div>
-                <span>This usually takes just a few seconds...</span>
-              </div>
-              <p className="text-xs text-muted-foreground mt-6">
-                Don't close this window. You'll be redirected automatically.
-              </p>
-            </CardContent>
-          </Card>
+            <Link href="/" className="text-sm font-medium hover:text-primary">
+              Back to Home
+            </Link>
+          </div>
         </div>
-      </div>
-    );
-  }
+      </nav>
 
-  if (orderStatus === 'paid') {
-    return (
-      <div className="min-h-screen bg-background stars-bg relative">
-        <div className="absolute inset-0 bg-gradient-to-b from-background via-background/95 to-background" />
-        <div className="relative z-10 flex items-center justify-center min-h-screen p-4">
-          <Card className="max-w-2xl w-full bg-card border-2 border-primary/30">
-            <CardContent className="p-12 text-center">
-              <div className="mb-6">
-                <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-primary/20 mb-4 animate-float-up">
-                  <CheckCircle2 className="w-12 h-12 text-primary" />
-                </div>
-                <h1 className="text-3xl font-display font-bold mb-2">Order Confirmed! ⭐</h1>
-                <p className="text-lg text-muted-foreground">
-                  Thank you for your order! Your personalized storybook is being created.
+      {/* Content */}
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="max-w-2xl mx-auto">
+          {orderStatus === 'checking' && (
+            <Card className="bg-card border-2 border-primary/20">
+              <CardContent className="pt-12 pb-12 text-center">
+                <Loader2 className="w-16 h-16 text-primary mx-auto mb-6 animate-spin" />
+                <h1 className="text-3xl font-display font-bold text-foreground mb-4">
+                  Confirming Your Order...
+                </h1>
+                <p className="text-muted-foreground mb-4">
+                  Please wait while we process your payment and prepare your personalized storybook.
                 </p>
-              </div>
-              
-              {orderData && (
-                <div className="bg-primary/10 rounded-lg p-6 mb-8 text-left border border-primary/30">
-                  <h2 className="font-display font-bold text-lg mb-3 flex items-center gap-2">
-                    <Sparkles className="h-5 w-5 text-primary" />
-                    Your Story Details
-                  </h2>
-                  <div className="space-y-2 text-muted-foreground">
-                    {orderData.metadata && (
-                      <>
-                        <p><strong>Child:</strong> {orderData.metadata.child_name}</p>
-                        <p><strong>Theme:</strong> {orderData.metadata.theme}</p>
-                        <p><strong>Order Email:</strong> {orderData.customer_email}</p>
-                      </>
-                    )}
-                    <p><strong>Order Date:</strong> {new Date(orderData.created_at).toLocaleDateString()}</p>
-                    {orderData.amount_total && (
-                      <p><strong>Total Paid:</strong> ${(orderData.amount_total / 100).toFixed(2)}</p>
-                    )}
-                  </div>
+                <p className="text-sm text-muted-foreground">
+                  This usually takes just a few seconds.
+                </p>
+              </CardContent>
+            </Card>
+          )}
+
+          {orderStatus === 'paid' && (
+            <Card className="bg-gradient-to-br from-primary/5 to-background border-2 border-primary/30">
+              <CardContent className="pt-12 pb-12 text-center">
+                <div className="relative mb-6">
+                  <CheckCircle2 className="w-20 h-20 text-green-500 mx-auto" />
+                  <Sparkles className="w-8 h-8 text-primary absolute top-0 right-1/4 animate-pulse" />
                 </div>
-              )}
-              
-              <div className="bg-background/50 rounded-lg p-6 mb-8 text-left">
-                <h2 className="font-display font-bold mb-3">What Happens Next?</h2>
-                <ul className="space-y-2 text-muted-foreground">
-                  <li className="flex items-start">
-                    <Mail className="h-5 w-5 text-primary mr-2 mt-0.5 flex-shrink-0" />
-                    <span>Check your email for order confirmation and receipt</span>
-                  </li>
-                  <li className="flex items-start">
-                    <Download className="h-5 w-5 text-primary mr-2 mt-0.5 flex-shrink-0" />
-                    <span>Your personalized PDF will be ready for download within 24 hours</span>
-                  </li>
-                  <li className="flex items-start">
-                    <Sparkles className="h-5 w-5 text-primary mr-2 mt-0.5 flex-shrink-0" />
-                    <span>You can create additional storybooks at any time!</span>
-                  </li>
-                </ul>
-              </div>
-              
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Link href="/">
-                  <Button size="lg" className="bg-primary text-primary-foreground hover:bg-primary/90 font-display px-8 rounded-full shadow-lg shadow-primary/30 w-full sm:w-auto">
-                    Return to Home
+                
+                <h1 className="text-4xl font-display font-bold text-foreground mb-4">
+                  Order Confirmed! 🎉
+                </h1>
+                
+                <p className="text-xl text-foreground/80 mb-8">
+                  Thank you for your purchase! Your personalized storybook is being created.
+                </p>
+
+                {orderData?.customer_email && orderData.customer_email !== 'confirmed' && (
+                  <div className="bg-muted/50 rounded-lg p-6 mb-8 text-left">
+                    <h2 className="text-lg font-bold mb-4 flex items-center gap-2">
+                      <Mail className="w-5 h-5 text-primary" />
+                      Order Details
+                    </h2>
+                    <div className="space-y-2 text-sm">
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Email:</span>
+                        <span className="font-medium">{orderData.customer_email}</span>
+                      </div>
+                      {orderData.child_name && (
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Child's Name:</span>
+                          <span className="font-medium">{orderData.child_name}</span>
+                        </div>
+                      )}
+                      {orderData.story_theme && (
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Story Theme:</span>
+                          <span className="font-medium capitalize">{orderData.story_theme.replace('-', ' ')}</span>
+                        </div>
+                      )}
+                      {sessionId && (
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Order ID:</span>
+                          <span className="font-mono text-xs">{sessionId.slice(0, 20)}...</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                <div className="bg-primary/10 border border-primary/30 rounded-lg p-6 mb-8">
+                  <h3 className="font-bold text-lg mb-3 flex items-center gap-2 justify-center">
+                    <Download className="w-5 h-5" />
+                    What Happens Next?
+                  </h3>
+                  <ol className="text-left space-y-3 text-sm text-foreground/80">
+                    <li className="flex gap-3">
+                      <span className="font-bold text-primary">1.</span>
+                      <span>You'll receive a confirmation email within the next few minutes</span>
+                    </li>
+                    <li className="flex gap-3">
+                      <span className="font-bold text-primary">2.</span>
+                      <span>Your personalized storybook will be generated within 24-48 hours</span>
+                    </li>
+                    <li className="flex gap-3">
+                      <span className="font-bold text-primary">3.</span>
+                      <span>We'll email you a download link to access your PDF storybook</span>
+                    </li>
+                    <li className="flex gap-3">
+                      <span className="font-bold text-primary">4.</span>
+                      <span>You can print it at home or read it on any device!</span>
+                    </li>
+                  </ol>
+                </div>
+
+                <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                  <Button asChild size="lg" className="bg-primary text-primary-foreground hover:bg-primary/90">
+                    <Link href="/create">
+                      <Sparkles className="mr-2 w-5 h-5" />
+                      Create Another Story
+                    </Link>
                   </Button>
-                </Link>
-                <Link href="/create">
-                  <Button size="lg" variant="outline" className="border-primary/40 text-primary hover:bg-primary/10 font-display px-8 rounded-full w-full sm:w-auto">
-                    <Sparkles className="mr-2 w-4 h-4" />
-                    Create Another Story
+                  <Button asChild size="lg" variant="outline">
+                    <Link href="/">
+                      Back to Home
+                    </Link>
                   </Button>
-                </Link>
-              </div>
-              
-              <p className="text-xs text-muted-foreground mt-8">
-                Questions? Contact us at support@mystarstories.shop
-              </p>
-            </CardContent>
-          </Card>
+                </div>
+
+                <p className="text-xs text-muted-foreground mt-8">
+                  Questions? Contact us at{' '}
+                  <a href="mailto:support@mystarstories.app" className="text-primary hover:underline">
+                    support@mystarstories.app
+                  </a>
+                </p>
+              </CardContent>
+            </Card>
+          )}
+
+          {orderStatus === 'error' && (
+            <Card className="bg-card border-2 border-destructive/20">
+              <CardContent className="pt-12 pb-12 text-center">
+                <XCircle className="w-16 h-16 text-destructive mx-auto mb-6" />
+                <h1 className="text-3xl font-display font-bold text-foreground mb-4">
+                  Order Not Found
+                </h1>
+                <p className="text-muted-foreground mb-8">
+                  We couldn't find your order. This might happen if you didn't complete the checkout process.
+                </p>
+                <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                  <Button asChild size="lg" className="bg-primary text-primary-foreground hover:bg-primary/90">
+                    <Link href="/create">
+                      Try Again
+                    </Link>
+                  </Button>
+                  <Button asChild size="lg" variant="outline">
+                    <Link href="/contact">
+                      Contact Support
+                    </Link>
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          )}
         </div>
       </div>
-    );
-  }
+    </div>
+  );
+}
 
-  return null;
+export default function OrderConfirmationPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="w-16 h-16 text-primary mx-auto mb-4 animate-spin" />
+          <p className="text-muted-foreground">Loading order details...</p>
+        </div>
+      </div>
+    }>
+      <OrderConfirmationContent />
+    </Suspense>
+  );
 }
