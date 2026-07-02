@@ -4,9 +4,10 @@ export function middleware(request) {
   const hostname = request.headers.get('host') || '';
   const url = request.nextUrl.clone();
 
-  // Redirect www.mystarstories.app to mystarstories.app
-  if (hostname === 'www.mystarstories.app') {
-    url.hostname = 'mystarstories.app';
+  // Only redirect www to non-www in production
+  if (process.env.NODE_ENV === 'production' && hostname.startsWith('www.')) {
+    // Remove www. prefix
+    url.hostname = hostname.replace(/^www\./, '');
     url.protocol = 'https:';
     return NextResponse.redirect(url, 301);
   }
