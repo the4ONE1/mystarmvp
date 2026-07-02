@@ -55,7 +55,7 @@ export default function RootLayout({ children }) {
               '@type': 'Organization',
               name: 'MESTAR',
               description: 'Personalized children\'s storybooks',
-              url: process.env.NEXT_PUBLIC_BASE_URL || 'https://mystarstories.shop',
+              url: process.env.NEXT_PUBLIC_BASE_URL,
             }),
           }}
         />
