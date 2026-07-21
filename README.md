@@ -68,6 +68,12 @@ yarn install
 
 The application is currently configured with **placeholder credentials**. To enable full functionality, update the following in `.env`:
 
+You can start from:
+
+```bash
+cp .env.example .env
+```
+
 #### MongoDB (Already configured)
 ```bash
 MONGO_URL=mongodb://localhost:27017
@@ -96,7 +102,7 @@ Get credentials from: https://console.aws.amazon.com/iam/
 AWS_ACCESS_KEY_ID=your_access_key_id_here
 AWS_SECRET_ACCESS_KEY=your_secret_access_key_here
 AWS_REGION=us-east-1
-S3_BUCKET_NAME=your-bucket-name-here
+AWS_S3_BUCKET=your-bucket-name-here
 ```
 
 **To create an S3 Bucket:**
@@ -105,6 +111,41 @@ S3_BUCKET_NAME=your-bucket-name-here
 3. Block all public access (we use presigned URLs)
 4. Enable server-side encryption
 5. Create an IAM user with S3 access and generate access keys
+
+## ▲ Deploy on Vercel
+
+1. Import the repository into Vercel.
+2. Set the framework preset to **Next.js** if Vercel does not auto-detect it.
+3. Add the environment variables from `.env.example` in the Vercel project settings.
+4. Set `NEXT_PUBLIC_BASE_URL` to your production domain or Vercel production URL.
+5. Deploy.
+6. After deploy, add your Stripe webhook endpoint:
+   - `https://YOUR_DOMAIN/api/webhooks/stripe`
+   - Event: `checkout.session.completed`
+
+### Vercel environment variables
+
+Copy and paste this block into Vercel:
+
+```bash
+NEXT_PUBLIC_BASE_URL=https://your-domain.vercel.app
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_or_live_your_publishable_key
+STRIPE_SECRET_KEY=sk_test_or_live_your_secret_key
+STRIPE_PRICE_MAIN_STORY=price_your_main_story_price
+STRIPE_PRICE_AUDIOBOOK=price_your_audiobook_price
+STRIPE_PRICE_COLORING_BOOK=price_your_coloring_book_price
+STRIPE_PRICE_ADDITIONAL_CHARACTER=price_your_additional_character_price
+STRIPE_WEBHOOK_SECRET=whsec_your_webhook_secret
+NEXT_PUBLIC_STRIPE_PRICE_AUDIOBOOK=price_your_audiobook_price
+NEXT_PUBLIC_STRIPE_PRICE_COLORING_BOOK=price_your_coloring_book_price
+NEXT_PUBLIC_STRIPE_PRICE_ADDITIONAL_CHARACTER=price_your_additional_character_price
+AWS_ACCESS_KEY_ID=your_aws_access_key_id
+AWS_SECRET_ACCESS_KEY=your_aws_secret_access_key
+AWS_REGION=us-east-1
+AWS_S3_BUCKET=your-s3-bucket-name
+SUPABASE_URL=https://your-project.supabase.co
+SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
+```
 
 ### 3. Start Development Server
 

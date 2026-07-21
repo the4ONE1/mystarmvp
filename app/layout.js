@@ -1,20 +1,7 @@
-import { Baloo_2, Nunito } from 'next/font/google';
 import './globals.css';
 import { MetaPixel } from '@/components/MetaPixel';
 import { GoogleAnalytics } from '@/components/GoogleAnalytics';
 import { GoogleTagManager } from '@/components/GoogleTagManager';
-
-const baloo2 = Baloo_2({ 
-  subsets: ['latin'],
-  variable: '--font-display',
-  weight: ['400', '500', '600', '700', '800'],
-});
-
-const nunito = Nunito({ 
-  subsets: ['latin'],
-  variable: '--font-body',
-  weight: ['400', '500', '600', '700', '800'],
-});
 
 export const metadata = {
   title: 'MESTAR — Personalized Storybooks Starring Your Child',
@@ -44,7 +31,7 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" className={`${baloo2.variable} ${nunito.variable}`}>
+    <html lang="en">
       <head>
         <link rel="icon" href="/favicon.ico" />
         <script
