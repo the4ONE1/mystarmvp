@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { stripe, STRIPE_PRICE_ID } from '@/lib/stripe';
+import { getStripe, STRIPE_PRICE_ID } from '@/lib/stripe';
 import { s3Client, bucketName, MAX_FILE_SIZE, ALLOWED_FILE_TYPES } from '@/lib/s3';
 import { PutObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
@@ -32,8 +32,10 @@ export async function POST(request) {
       const { childName, age, gender, theme, dedication } = body;
 
       try {
+        const stripe = getStripe();
+
         // Check if Stripe is configured
-        if (!process.env.STRIPE_SECRET_KEY || process.env.STRIPE_SECRET_KEY.includes('placeholder')) {
+        if (!stripe) {
           return NextResponse.json(
             {
               error: 'Stripe not configured',

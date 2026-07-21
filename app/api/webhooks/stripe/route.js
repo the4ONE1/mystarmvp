@@ -1,10 +1,6 @@
 import { NextResponse } from 'next/server';
-import Stripe from 'stripe';
 import { createOrder, updateOrder, isSupabaseConfigured } from '@/lib/supabase';
-
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'sk_test_placeholder', {
-  apiVersion: '2023-10-16',
-});
+import { getStripe } from '@/lib/stripe';
 
 const WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET || 'whsec_placeholder';
 
@@ -12,9 +8,10 @@ export async function POST(request) {
   try {
     const body = await request.text();
     const signature = request.headers.get('stripe-signature');
+    const stripe = getStripe();
 
     // Check if webhook is configured
-    if (!signature || WEBHOOK_SECRET.includes('placeholder')) {
+    if (!signature || WEBHOOK_SECRET.includes('placeholder') || !stripe) {
       console.log('Webhook: No signature or placeholder secret, skipping verification');
       return NextResponse.json({ received: true, mock: true });
     }

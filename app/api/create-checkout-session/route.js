@@ -1,15 +1,20 @@
 import { NextResponse } from 'next/server';
-import Stripe from 'stripe';
 import { createOrder, isSupabaseConfigured } from '@/lib/supabase';
-
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-  apiVersion: '2023-10-16',
-});
+import { getStripe } from '@/lib/stripe';
 
 const DOMAIN_URL = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
 
 export async function POST(request) {
   try {
+    const stripe = getStripe();
+
+    if (!stripe) {
+      return NextResponse.json(
+        { error: 'Stripe is not configured. Set STRIPE_SECRET_KEY before deploying.' },
+        { status: 500 }
+      );
+    }
+
     const body = await request.json();
     const { 
       customerEmail, 
