@@ -39,7 +39,7 @@ const faqs = [
   },
   {
     question: 'What if I make a mistake in the personalization?',
-    answer: 'Please double-check all information before completing your order. If you notice an error after purchase, contact us immediately at support@mystarstories.com and we\'ll do our best to help.',
+    answer: 'Please double-check all information before completing your order. If you notice an error after purchase, contact us immediately at support@mystarstories.app and we\'ll do our best to help.',
   },
   {
     question: 'Do you offer refunds?',
@@ -135,7 +135,7 @@ export default function FAQPage() {
               asChild
               className="bg-primary text-primary-foreground hover:bg-primary/90 font-display rounded-full shadow-lg"
             >
-              <a href="mailto:support@mystarstories.com">
+              <a href="mailto:support@mystarstories.app">
                 Contact Support
               </a>
             </Button>
