@@ -46,7 +46,7 @@ export async function POST(request) {
     };
 
     // Add selected add-ons to line items
-    selectedAddons.forEach(addon => {
+    const addonsArray = Array.isArray(selectedAddons) ? selectedAddons : (selectedAddons && typeof selectedAddons === "object" ? Object.keys(selectedAddons).filter(k => selectedAddons[k]) : []); addonsArray.forEach(addon => {
       const addonId = typeof addon === 'string' ? addon : addon.id;
       const priceId = addonPriceMapping[addonId];
       
