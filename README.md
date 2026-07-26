@@ -68,6 +68,11 @@ yarn install
 
 The application is currently configured with **placeholder credentials**. To enable full functionality, update the following in `.env`:
 
+```bash
+cp .env.example .env
+cp .env.production.example .env.production
+```
+
 #### MongoDB (Already configured)
 ```bash
 MONGO_URL=mongodb://localhost:27017
