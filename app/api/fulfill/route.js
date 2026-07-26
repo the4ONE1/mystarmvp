@@ -7,7 +7,6 @@ export async function POST(req) {
     const { sessionId } = await req.json();
     if (!sessionId) return NextResponse.json({ error: 'Missing sessionId' }, { status: 400 });
     
-    // Verify payment with Stripe
     const session = await stripe.checkout.sessions.retrieve(sessionId);
     if (session.payment_status !== 'paid') {
       return NextResponse.json({ error: 'Payment not completed' }, { status: 400 });
@@ -18,19 +17,28 @@ export async function POST(req) {
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
     const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
     
-    if (!supabaseUrl || !serviceKey || !meta.childName) {
-      return NextResponse.json({ error: 'Missing config or metadata' }, { status: 500 });
+    if (!supabaseUrl || !serviceKey) {
+      return NextResponse.json({ error: 'Missing Supabase config' }, { status: 500 });
     }
     
-    // Generate story
+    const childName = meta.child_name || meta.childName || 'Your Child';
+    const childAge = meta.age || meta.childAge || '4-7';
+    const childGender = meta.gender || meta.childGender || 'neutral';
+    const theme = meta.theme || 'Magical Adventure';
+    const strength = meta.strength || '';
+    
+    if (!childName) {
+      return NextResponse.json({ error: 'Missing child name in order metadata' }, { status: 400 });
+    }
+    
+    console.log('Fulfilling order for:', childName, 'theme:', theme, 'email:', customerEmail);
+    
     const storyRes = await fetch(supabaseUrl + '/functions/v1/generate-story', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + serviceKey },
       body: JSON.stringify({
-        childName: meta.childName, childAge: meta.childAge, childGender: meta.childGender || 'neutral',
-        theme: meta.theme, strength: meta.strength,
-        hasSupportingCharacter: meta.hasSupportingCharacter === 'true',
-        supportingCharacterName: meta.supportingCharacterName, selectedAddons: {}
+        childName, childAge, childGender, theme, strength,
+        hasSupportingCharacter: false, selectedAddons: {}
       })
     });
     
@@ -43,20 +51,19 @@ export async function POST(req) {
     const story = await storyRes.json();
     console.log('Story generated:', story.title);
     
-    // Kick off PDF creation and email (non-blocking)
+    // Fire PDF + email (background, non-blocking)
     fetch(supabaseUrl + '/functions/v1/create-storybook', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + serviceKey },
       body: JSON.stringify({
         orderId: sessionId, title: story.title, story: story.story,
-        coloringPrompts: story.coloringPrompts, bonusColoringPrompts: [],
-        illustrationPrompts: story.illustrationPrompts, selectedAddons: story.addons,
-        customerEmail, childName: meta.childName, childAge: meta.childAge,
-        theme: meta.theme, strength: meta.strength
+        coloringPrompts: story.coloringPrompts || [], bonusColoringPrompts: [],
+        illustrationPrompts: story.illustrationPrompts || [], selectedAddons: story.addons || {},
+        customerEmail, childName, childAge, theme, strength
       })
-    }).then(r => r.json()).then(r => console.log('create-storybook:', r.success ? 'OK' : r.error)).catch(e => console.error('create-storybook error:', e));
+    }).catch(e => console.error('create-storybook error:', e));
     
-    return NextResponse.json({ success: true, title: story.title, customerEmail });
+    return NextResponse.json({ success: true, title: story.title, customerEmail, childName });
   } catch (e) {
     console.error('fulfill error:', e);
     return NextResponse.json({ error: e.message }, { status: 500 });
