@@ -1,4 +1,5 @@
 'use client';
+import React from 'react';
 
 import { Suspense, useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
@@ -15,6 +16,23 @@ function OrderConfirmationContent() {
   const [orderData, setOrderData] = useState(null);
   const [pollCount, setPollCount] = useState(0);
 
+  // Trigger story generation when customer lands on confirmation page
+  React.useEffect(() => {
+    const sessionId = new URLSearchParams(window.location.search).get('session_id');
+    if (sessionId) {
+      const alreadyFulfilled = sessionStorage.getItem('fulfilled_' + sessionId);
+      if (!alreadyFulfilled) {
+        sessionStorage.setItem('fulfilled_' + sessionId, '1');
+        fetch('/api/fulfill', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ sessionId })
+        }).then(r => r.json()).then(d => {
+          console.log('Fulfill result:', d);
+        }).catch(e => console.error('Fulfill error:', e));
+      }
+    }
+  }, []);
   useEffect(() => {
     if (!sessionId) {
       setOrderStatus('error');
