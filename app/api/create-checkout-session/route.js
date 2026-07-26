@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { createOrder, isSupabaseConfigured } from '@/lib/supabase';
 import { stripe } from '@/lib/stripe';
 
-const DOMAIN_URL = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+const DOMAIN_URL = process.env.NEXT_PUBLIC_BASE_URL || 'https://mestar.pro';
 
 export async function POST(request) {
   try {
@@ -27,6 +27,14 @@ export async function POST(request) {
       return NextResponse.json(
         { error: 'Missing required fields: customerEmail, childName, theme' },
         { status: 400 }
+      );
+    }
+
+    if (!process.env.STRIPE_PRICE_MAIN_STORY) {
+      console.error('STRIPE_PRICE_MAIN_STORY is not set — checkout cannot proceed');
+      return NextResponse.json(
+        { error: 'Checkout is temporarily unavailable. Please try again shortly.' },
+        { status: 500 }
       );
     }
 

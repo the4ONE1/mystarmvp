@@ -4,7 +4,7 @@ import { s3Client, bucketName, MAX_FILE_SIZE, ALLOWED_FILE_TYPES } from '@/lib/s
 import { PutObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 
-const DOMAIN_URL = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+const DOMAIN_URL = process.env.NEXT_PUBLIC_BASE_URL || 'https://mestar.pro';
 
 // Helper function to handle CORS
 function corsHeaders() {

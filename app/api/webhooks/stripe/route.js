@@ -96,13 +96,18 @@ export async function POST(request) {
             const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
             const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
             const meta = session.metadata || {};
-            if (supabaseUrl && serviceKey && meta.childName) {
+            // NOTE: create-checkout-session writes child_name/age (snake_case), not
+            // childName/childAge — reading the wrong keys here meant this condition
+            // was always false and story generation never fired from the webhook.
+            const metaChildName = meta.child_name || meta.childName;
+            const metaChildAge = meta.age || meta.childAge;
+            if (supabaseUrl && serviceKey && metaChildName) {
               // Generate story
               const storyRes = await fetch(supabaseUrl + '/functions/v1/generate-story', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + serviceKey },
                 body: JSON.stringify({
-                  childName: meta.childName, childAge: meta.childAge, childGender: meta.childGender || 'neutral',
+                  childName: metaChildName, childAge: metaChildAge, childGender: meta.gender || meta.childGender || 'neutral',
                   theme: meta.theme, strength: meta.strength, hasSupportingCharacter: meta.hasSupportingCharacter === 'true',
                   supportingCharacterName: meta.supportingCharacterName, selectedAddons: {}
                 })
@@ -118,7 +123,7 @@ export async function POST(request) {
                     coloringPrompts: story.coloringPrompts, bonusColoringPrompts: [],
                     illustrationPrompts: story.illustrationPrompts, selectedAddons: story.addons,
                     customerEmail: session.customer_details?.email || session.customer_email,
-                    childName: meta.childName, childAge: meta.childAge, theme: meta.theme, strength: meta.strength
+                    childName: metaChildName, childAge: metaChildAge, theme: meta.theme, strength: meta.strength
                   })
                 }).catch(e => console.error('create-storybook error:', e));
               }
