@@ -1,12 +1,14 @@
 import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { createOrder, updateOrder, isSupabaseConfigured } from '@/lib/supabase';
+import { sendOrderConfirmation, isEmailConfigured } from '@/lib/email';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'sk_test_placeholder', {
   apiVersion: '2023-10-16',
 });
 
 const WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET || 'whsec_placeholder';
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
 
 export async function POST(request) {
   try {
@@ -68,6 +70,8 @@ export async function POST(request) {
           child_name: session.metadata?.child_name || '',
           child_age: session.metadata?.age || '',
           story_theme: session.metadata?.theme || '',
+          gender: session.metadata?.gender || '',
+          dedication: session.metadata?.dedication || '',
           photo_urls: [],
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
@@ -91,6 +95,36 @@ export async function POST(request) {
         }
 
         console.log('Order fulfillment completed for session:', session.id);
+
+        // ── Send order confirmation email ────────────────────────────────────
+        if (isEmailConfigured() && orderData.customer_email) {
+          sendOrderConfirmation({
+            customerEmail: orderData.customer_email,
+            customerName: orderData.customer_name,
+            childName: orderData.child_name,
+            theme: orderData.story_theme,
+            sessionId: session.id,
+            amountTotal: session.amount_total,
+          }).catch(err =>
+            console.error('Order confirmation email failed:', err.message)
+          );
+        }
+
+        // ── Trigger async story generation ───────────────────────────────────
+        // Fire-and-forget so the webhook returns 200 quickly to Stripe.
+        const generateUrl = `${BASE_URL}/api/generate-story`;
+        fetch(generateUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            ...(process.env.INTERNAL_API_SECRET
+              ? { Authorization: 'Bearer ' + process.env.INTERNAL_API_SECRET }
+              : {}),
+          },
+          body: JSON.stringify({ sessionId: session.id }),
+        }).catch(err =>
+          console.error('Story generation trigger failed:', err.message)
+        );
       } catch (dbError) {
         console.error('Database error during order fulfillment:', dbError);
         // Return success to Stripe even if DB fails (to prevent webhook retries)

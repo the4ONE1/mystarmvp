@@ -74,3 +74,15 @@ COMMENT ON COLUMN orders.items IS 'JSON array of line items from Stripe';
 COMMENT ON COLUMN orders.amount_total IS 'Total amount in cents';
 COMMENT ON COLUMN orders.status IS 'Order status: pending, paid, fulfilled, cancelled';
 COMMENT ON COLUMN orders.photo_urls IS 'JSON array of uploaded photo URLs from S3';
+
+-- ─── Migration: story generation columns ─────────────────────────────────────
+-- Run this block if upgrading an existing database (safe to run multiple times).
+ALTER TABLE orders ADD COLUMN IF NOT EXISTS story_content text;
+ALTER TABLE orders ADD COLUMN IF NOT EXISTS pdf_url text;
+ALTER TABLE orders ADD COLUMN IF NOT EXISTS dedication text;
+ALTER TABLE orders ADD COLUMN IF NOT EXISTS gender text;
+
+COMMENT ON COLUMN orders.story_content IS 'JSON string of generated story (title, chapters)';
+COMMENT ON COLUMN orders.pdf_url IS 'Presigned or public S3 URL for the generated PDF storybook';
+COMMENT ON COLUMN orders.dedication IS 'Personal dedication message from the purchaser';
+COMMENT ON COLUMN orders.gender IS 'Child gender for pronoun selection (male/female/non-binary)';

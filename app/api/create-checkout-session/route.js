@@ -98,6 +98,8 @@ export async function POST(request) {
           child_name: childName,
           child_age: String(childAgeValue || ''),
           story_theme: theme,
+          gender: gender || '',
+          dedication: dedication || '',
           photo_urls: [],
           created_at: new Date().toISOString(),
         });
