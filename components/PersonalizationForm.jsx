@@ -17,6 +17,34 @@ const storyThemes = [
   { id: 'castle', title: 'Medieval Quest', icon: Castle, color: 'from-gray-600 to-blue-700' },
 ];
 
+// Must match the age-group strings the story-generation backend parses
+// ("1-3" / "4-7" / "8-10" / "11") to pick word count and scene complexity —
+// sending a raw number here silently fell through to a generic default,
+// so every story read the same regardless of the child's actual age.
+const ageGroups = [
+  { value: '1-3', label: '1–3', sublabel: 'Toddler' },
+  { value: '4-7', label: '4–7', sublabel: 'Early Reader' },
+  { value: '8-10', label: '8–10', sublabel: 'Young Reader' },
+  { value: '11+', label: '11+', sublabel: 'Preteen' },
+];
+
+// Pressing Enter in a single-line field moves focus to the next focusable
+// field instead of requiring a manual click — every bit of friction here
+// is a customer who abandons the form.
+function focusNextField(e) {
+  if (e.key !== 'Enter') return;
+  e.preventDefault();
+  const form = e.target.form;
+  if (!form) return;
+  const focusable = Array.from(
+    form.querySelectorAll('input, button, textarea, [tabindex]')
+  ).filter((el) => !el.disabled && el.offsetParent !== null);
+  const idx = focusable.indexOf(e.target);
+  if (idx > -1 && idx < focusable.length - 1) {
+    focusable[idx + 1].focus();
+  }
+}
+
 export function PersonalizationForm({ onSubmit, initialData = {} }) {
   const [formData, setFormData] = useState({
     childName: initialData.childName || '',
@@ -44,9 +72,7 @@ export function PersonalizationForm({ onSubmit, initialData = {} }) {
     }
     
     if (!formData.age) {
-      newErrors.age = 'Age is required';
-    } else if (formData.age < 1 || formData.age > 12) {
-      newErrors.age = 'Age must be between 1 and 12';
+      newErrors.age = 'Please select an age group';
     }
     
     if (!formData.gender) {
@@ -74,7 +100,7 @@ export function PersonalizationForm({ onSubmit, initialData = {} }) {
       {/* Child Details */}
       <div className="space-y-6">
         <div>
-          <h3 className="text-xl font-bold text-gray-900 mb-4">Child Details</h3>
+          <h3 className="text-xl font-bold text-foreground mb-4">Child Details</h3>
         </div>
         
         <div className="grid md:grid-cols-2 gap-6">
@@ -86,6 +112,7 @@ export function PersonalizationForm({ onSubmit, initialData = {} }) {
               id="childName"
               value={formData.childName}
               onChange={(e) => handleChange('childName', e.target.value)}
+              onKeyDown={focusNextField}
               placeholder="Enter child's name"
               className={`text-base ${errors.childName ? 'border-red-500' : ''}`}
             />
@@ -93,21 +120,29 @@ export function PersonalizationForm({ onSubmit, initialData = {} }) {
               <p className="text-sm text-red-500">{errors.childName}</p>
             )}
           </div>
-          
+
           <div className="space-y-2">
-            <Label htmlFor="age" className="text-base font-semibold">
-              Age *
-            </Label>
-            <Input
-              id="age"
-              type="number"
-              min="1"
-              max="12"
-              value={formData.age}
-              onChange={(e) => handleChange('age', e.target.value)}
-              placeholder="Age (1-12)"
-              className={`text-base ${errors.age ? 'border-red-500' : ''}`}
-            />
+            <Label className="text-base font-semibold">Age Group *</Label>
+            <div className="grid grid-cols-4 gap-2">
+              {ageGroups.map((group) => {
+                const isSelected = formData.age === group.value;
+                return (
+                  <button
+                    key={group.value}
+                    type="button"
+                    onClick={() => handleChange('age', group.value)}
+                    className={`rounded-md border-2 py-2 px-1 text-center transition-all ${
+                      isSelected
+                        ? 'border-primary bg-primary/10 text-primary'
+                        : 'border-border text-foreground hover:border-primary/50'
+                    }`}
+                  >
+                    <span className="block text-base font-bold leading-tight">{group.label}</span>
+                    <span className="block text-[11px] leading-tight text-muted-foreground">{group.sublabel}</span>
+                  </button>
+                );
+              })}
+            </div>
             {errors.age && <p className="text-sm text-red-500">{errors.age}</p>}
           </div>
         </div>
@@ -144,7 +179,7 @@ export function PersonalizationForm({ onSubmit, initialData = {} }) {
 
       {/* Story Theme */}
       <div className="space-y-4">
-        <h3 className="text-xl font-bold text-gray-900">Choose Story Theme *</h3>
+        <h3 className="text-xl font-bold text-foreground">Choose Story Theme *</h3>
         
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {storyThemes.map((theme) => {
@@ -156,8 +191,8 @@ export function PersonalizationForm({ onSubmit, initialData = {} }) {
                 key={theme.id}
                 className={`cursor-pointer transition-all ${
                   isSelected
-                    ? 'border-2 border-purple-600 shadow-lg'
-                    : 'border-2 border-gray-200 hover:border-purple-300'
+                    ? 'border-2 border-primary shadow-lg'
+                    : 'border-2 border-border hover:border-primary/50'
                 }`}
                 onClick={() => handleChange('theme', theme.id)}
               >
@@ -167,9 +202,9 @@ export function PersonalizationForm({ onSubmit, initialData = {} }) {
                   >
                     <Icon className="w-12 h-12 text-white" />
                   </div>
-                  <p className="text-center font-semibold text-gray-900">{theme.title}</p>
+                  <p className="text-center font-semibold text-foreground">{theme.title}</p>
                   {isSelected && (
-                    <div className="flex items-center justify-center mt-2 text-purple-600 text-sm font-semibold">
+                    <div className="flex items-center justify-center mt-2 text-primary text-sm font-semibold">
                       <Sparkles className="w-4 h-4 mr-1" />
                       Selected
                     </div>
@@ -193,9 +228,9 @@ export function PersonalizationForm({ onSubmit, initialData = {} }) {
           onChange={(e) => handleChange('dedication', e.target.value)}
           placeholder="Add a special message to your child..."
           rows={4}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+          className="w-full px-3 py-2 border border-border rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
         />
-        <p className="text-sm text-gray-500">This will appear on the first page of the book</p>
+        <p className="text-sm text-muted-foreground">This will appear on the first page of the book</p>
       </div>
 
       <Button
