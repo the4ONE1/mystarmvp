@@ -91,6 +91,42 @@ export async function POST(request) {
         }
 
         console.log('Order fulfillment completed for session:', session.id);
+          // Trigger story generation via Supabase edge functions
+          try {
+            const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+            const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+            const meta = session.metadata || {};
+            if (supabaseUrl && serviceKey && meta.childName) {
+              // Generate story
+              const storyRes = await fetch(supabaseUrl + '/functions/v1/generate-story', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + serviceKey },
+                body: JSON.stringify({
+                  childName: meta.childName, childAge: meta.childAge, childGender: meta.childGender || 'neutral',
+                  theme: meta.theme, strength: meta.strength, hasSupportingCharacter: meta.hasSupportingCharacter === 'true',
+                  supportingCharacterName: meta.supportingCharacterName, selectedAddons: {}
+                })
+              });
+              if (storyRes.ok) {
+                const story = await storyRes.json();
+                // Create storybook PDF and send email
+                fetch(supabaseUrl + '/functions/v1/create-storybook', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + serviceKey },
+                  body: JSON.stringify({
+                    orderId: session.id, title: story.title, story: story.story,
+                    coloringPrompts: story.coloringPrompts, bonusColoringPrompts: [],
+                    illustrationPrompts: story.illustrationPrompts, selectedAddons: story.addons,
+                    customerEmail: session.customer_details?.email || session.customer_email,
+                    childName: meta.childName, childAge: meta.childAge, theme: meta.theme, strength: meta.strength
+                  })
+                }).catch(e => console.error('create-storybook error:', e));
+              }
+            }
+          } catch (genErr) {
+            console.error('Story generation trigger failed:', genErr);
+          }
+
       } catch (dbError) {
         console.error('Database error during order fulfillment:', dbError);
         // Return success to Stripe even if DB fails (to prevent webhook retries)
