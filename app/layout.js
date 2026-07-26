@@ -67,8 +67,8 @@ export default function RootLayout({ children }) {
         <MetaPixel />
         <GoogleAnalytics />
         <SpeedInsights />
-        <Analytics />
         {children}
+        <Analytics />
       </body>
     </html>
   );
