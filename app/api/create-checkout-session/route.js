@@ -6,22 +6,37 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
   apiVersion: '2023-10-16',
 });
 
-const DOMAIN_URL = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+// Resolves the base URL for Stripe's success/cancel redirect. NEXT_PUBLIC_BASE_URL is a
+// build-time env var — if it's ever unset or left pointing at localhost in production, falling
+// back to it silently sends real customers who just paid to a dead URL. Prefer the actual
+// request origin (which is always correct for whatever domain served the request) instead.
+function resolveDomainUrl(request) {
+  const configured = process.env.NEXT_PUBLIC_BASE_URL;
+  if (configured && !configured.includes('localhost')) return configured;
+  try {
+    return request.nextUrl.origin;
+  } catch {
+    return configured || 'http://localhost:3000';
+  }
+}
 
 export async function POST(request) {
   try {
+    const DOMAIN_URL = resolveDomainUrl(request);
     const body = await request.json();
-    const { 
-      customerEmail, 
+    const {
+      customerEmail,
       customerName,
-      childName, 
+      childName,
       age,
       childAge, // Accept both age and childAge
       gender,
-      theme, 
+      theme,
       dedication,
-      selectedAddons = [] 
+      selectedAddons: rawSelectedAddons = []
     } = body;
+
+    const selectedAddons = Array.isArray(rawSelectedAddons) ? rawSelectedAddons : [];
 
     // Use childAge if age is not provided
     const childAgeValue = age || childAge;
@@ -31,6 +46,14 @@ export async function POST(request) {
       return NextResponse.json(
         { error: 'Missing required fields: customerEmail, childName, theme' },
         { status: 400 }
+      );
+    }
+
+    if (!process.env.STRIPE_SECRET_KEY || !process.env.STRIPE_PRICE_MAIN_STORY) {
+      console.error('Checkout session error: STRIPE_SECRET_KEY or STRIPE_PRICE_MAIN_STORY is not set');
+      return NextResponse.json(
+        { error: 'Checkout is not configured', details: 'Missing Stripe price configuration on the server' },
+        { status: 500 }
       );
     }
 
@@ -53,7 +76,7 @@ export async function POST(request) {
     selectedAddons.forEach(addon => {
       const addonId = typeof addon === 'string' ? addon : addon.id;
       const priceId = addonPriceMapping[addonId];
-      
+
       if (priceId) {
         lineItems.push({
           price: priceId,

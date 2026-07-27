@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -103,7 +104,9 @@ export default function CheckoutPage() {
       // Check for errors from the API
       if (!response.ok) {
         console.error('API Error:', data);
-        alert(`Checkout failed: ${data.error || 'Unknown error'}. ${data.details || ''}`);
+        toast.error('Checkout failed', {
+          description: data.details || data.error || 'Please try again in a moment.',
+        });
         return;
       }
 
@@ -112,13 +115,15 @@ export default function CheckoutPage() {
         window.location.href = data.url;
       } else if (data.error) {
         console.error('Checkout error:', data);
-        alert(`Checkout failed: ${data.error}. ${data.details || 'Please try again.'}`);
+        toast.error('Checkout failed', {
+          description: data.details || data.error || 'Please try again.',
+        });
       } else {
-        alert('Checkout failed. Please try again.');
+        toast.error('Checkout failed', { description: 'Please try again.' });
       }
     } catch (error) {
       console.error('Checkout error:', error);
-      alert(`An error occurred: ${error.message}. Please try again.`);
+      toast.error('Something went wrong', { description: error.message });
     } finally {
       setIsProcessing(false);
     }
