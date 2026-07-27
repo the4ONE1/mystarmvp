@@ -3,6 +3,7 @@ import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Star, Sparkles, BookOpen, Shield, Download, FileText, CheckCircle2, Clock } from 'lucide-react';
 import { Footer } from '@/components/Footer';
+import { TransformationReveal } from '@/components/landing/TransformationReveal';
 
 export const metadata = {
   title: 'MESTAR — Personalized Children\'s Storybooks | Make Your Child the Star',
@@ -136,6 +137,7 @@ export default function HomePage() {
 
       {/* Hero */}
       <section className="relative overflow-hidden stars-bg">
+        <TransformationReveal />
         <div className="absolute inset-0 bg-gradient-to-b from-background via-background/90 to-background" />
         <div className="relative z-10 container text-center pt-12 pb-16 sm:pt-20 sm:pb-24">
           <div className="inline-flex items-center gap-2 bg-primary/20 backdrop-blur-sm border border-primary/30 rounded-full px-4 py-2 mb-6">
