@@ -1,5 +1,11 @@
 # AWS S3 Photo Upload Configuration Guide
 
+> **⚠️ Superseded.** As of the checkout re-plumb to mestar's backend, photo
+> uploads go through mestar's `create-pending-order` Edge Function into its
+> private Supabase Storage bucket (`customer-photos`), not AWS S3. `lib/s3.js`
+> and the S3 upload route described below have been removed. This doc is kept
+> for historical reference only.
+
 ## Overview
 The Mestar application now uses real AWS S3 for photo uploads. Photos are stored in a structured format in the S3 bucket.
 

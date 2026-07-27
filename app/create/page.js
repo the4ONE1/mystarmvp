@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { PhotoUpload } from '@/components/PhotoUpload';
 import { PersonalizationForm } from '@/components/PersonalizationForm';
+import { createPendingOrder } from '@/lib/mestarClient';
 import { ArrowLeft, Camera, Edit3, ShoppingCart, Sparkles } from 'lucide-react';
 
 export default function CreateStoryPage() {
@@ -15,6 +16,8 @@ export default function CreateStoryPage() {
   const [photos, setPhotos] = useState([]);
   const [personalizationData, setPersonalizationData] = useState(null);
   const [savedData, setSavedData] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState('');
 
   // Load saved progress on mount
   useEffect(() => {
@@ -58,17 +61,37 @@ export default function CreateStoryPage() {
 
   const handlePersonalizationSubmit = async (formData) => {
     setPersonalizationData(formData);
-    
-    sessionStorage.setItem('storyOrder', JSON.stringify({
-      ...formData,
-      photos: photos.map(p => p.preview),
-      timestamp: new Date().toISOString(),
-    }));
-    
-    // Clear draft on successful submission
-    localStorage.removeItem('mestar_draft');
-    
-    router.push('/checkout');
+    setSubmitError('');
+    setIsSubmitting(true);
+
+    try {
+      // Creates the order in mestar's backend and uploads the photo (if any)
+      // server-side, before we ever touch Stripe checkout.
+      const { orderId, recoveryToken } = await createPendingOrder({
+        childName: formData.childName,
+        age: formData.age,
+        theme: formData.theme,
+        photoDataUrl: photos[0]?.dataUrl,
+      });
+
+      sessionStorage.setItem('storyOrder', JSON.stringify({
+        ...formData,
+        orderId,
+        recoveryToken,
+        photos: photos.map(p => p.preview),
+        timestamp: new Date().toISOString(),
+      }));
+
+      // Clear draft on successful submission
+      localStorage.removeItem('mestar_draft');
+
+      router.push('/checkout');
+    } catch (error) {
+      console.error('createPendingOrder failed:', error);
+      setSubmitError(error.message || 'Could not start your order. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -173,12 +196,16 @@ export default function CreateStoryPage() {
                 <p className="text-muted-foreground">Tell us about your child to create a magical personalized storybook</p>
               </CardHeader>
               <CardContent>
-                <PersonalizationForm onSubmit={handlePersonalizationSubmit} />
-                
+                <PersonalizationForm onSubmit={handlePersonalizationSubmit} isSubmitting={isSubmitting} />
+                {submitError && (
+                  <p className="text-sm text-red-500 mt-4">{submitError}</p>
+                )}
+
                 <div className="mt-6 pt-6 border-t border-border">
                   <Button
                     variant="outline"
                     onClick={() => setStep(1)}
+                    disabled={isSubmitting}
                     className="border-border hover:bg-muted"
                   >
                     <ArrowLeft className="w-4 h-4 mr-2" />

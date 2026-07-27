@@ -1,5 +1,11 @@
 # ✅ STRIPE LIVE PAYMENT INTEGRATION - COMPLETE
 
+> **⚠️ Superseded.** Checkout is now created by mestar's `create-checkout`
+> Edge Function (embedded Stripe Checkout, Price *lookup keys*, not raw Price
+> IDs), not by `STRIPE_SECRET_KEY`/`stripe.checkout.sessions.create()` in this
+> app. `lib/stripe.js` and the routes described below have been removed. This
+> doc is kept for historical reference only.
+
 ## Overview
 The Mestar application is now fully integrated with **LIVE Stripe Checkout** using real Price IDs. All mock/placeholder logic has been removed.
 

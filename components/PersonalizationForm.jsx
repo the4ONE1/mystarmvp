@@ -17,7 +17,7 @@ const storyThemes = [
   { id: 'castle', title: 'Medieval Quest', icon: Castle, color: 'from-gray-600 to-blue-700' },
 ];
 
-export function PersonalizationForm({ onSubmit, initialData = {} }) {
+export function PersonalizationForm({ onSubmit, initialData = {}, isSubmitting = false }) {
   const [formData, setFormData] = useState({
     childName: initialData.childName || '',
     age: initialData.age || '',
@@ -201,9 +201,10 @@ export function PersonalizationForm({ onSubmit, initialData = {} }) {
       <Button
         type="submit"
         size="lg"
+        disabled={isSubmitting}
         className="w-full bg-primary text-primary-foreground hover:bg-primary/90 font-display text-lg py-6 shadow-xl shadow-primary/30 rounded-full"
       >
-        Continue to Checkout ⭐
+        {isSubmitting ? 'Starting your order...' : 'Continue to Checkout ⭐'}
       </Button>
     </form>
   );

@@ -1,6 +1,13 @@
 # MESTAR - FINAL DEPLOYMENT REPORT
 ## MongoDB → Supabase Migration Complete
 
+> **⚠️ Superseded.** This app no longer uses its own Supabase project/
+> `orders` table for checkout — it now reads and writes through mestar's
+> Supabase project (`storybook_orders`, via the `create-pending-order` /
+> `create-checkout` / `get-order-status` Edge Functions). `lib/supabase.js`
+> (the service-role client for this app's own `orders` table) has been
+> removed. This doc is kept for historical reference only.
+
 **Date:** July 2, 2026
 **Status:** ✅ DEPLOYMENT READY
 

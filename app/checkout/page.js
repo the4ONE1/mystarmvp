@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -10,7 +9,12 @@ import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Separator } from '@/components/ui/separator';
 import { ArrowLeft, CreditCard, Lock, Sparkles, Plus } from 'lucide-react';
+import { StripeEmbeddedCheckout } from '@/components/StripeEmbeddedCheckout';
+import { PRICE_LOOKUP_KEYS } from '@/lib/mestarClient';
 
+// "additional-character" isn't offered yet — mystarmvp's personalization form
+// doesn't collect a supporting-character name/photo, and mestar's pipeline
+// needs both to fulfill that add-on.
 const ADDONS = [
   {
     id: 'audiobook',
@@ -18,7 +22,7 @@ const ADDONS = [
     description: 'Professional narration of your personalized story',
     price: 999,
     priceDisplay: '$9.99',
-    priceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_AUDIOBOOK || 'price_1ToarQFABTce6JHknM5PrJ4c',
+    lookupKey: PRICE_LOOKUP_KEYS.audiobook,
   },
   {
     id: 'coloring-book',
@@ -26,25 +30,16 @@ const ADDONS = [
     description: 'Printable coloring pages featuring your story',
     price: 399,
     priceDisplay: '$3.99',
-    priceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_COLORING_BOOK || 'price_1ToarUFABTce6JHk4gzcClnG',
-  },
-  {
-    id: 'additional-character',
-    name: 'Additional Character',
-    description: 'Add a sibling, friend, or pet to the story',
-    price: 999,
-    priceDisplay: '$9.99',
-    priceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_ADDITIONAL_CHARACTER || 'price_1ToarfFABTce6JHk6JWz2bdq',
+    lookupKey: PRICE_LOOKUP_KEYS.coloringBook,
   },
 ];
 
 export default function CheckoutPage() {
-  const router = useRouter();
   const [orderData, setOrderData] = useState(null);
   const [customerEmail, setCustomerEmail] = useState('');
   const [customerName, setCustomerName] = useState('');
   const [selectedAddons, setSelectedAddons] = useState([]);
-  const [isProcessing, setIsProcessing] = useState(false);
+  const [showEmbeddedCheckout, setShowEmbeddedCheckout] = useState(false);
 
   useEffect(() => {
     const stored = sessionStorage.getItem('storyOrder');
@@ -54,8 +49,8 @@ export default function CheckoutPage() {
   }, []);
 
   const toggleAddon = (addonId) => {
-    setSelectedAddons(prev => 
-      prev.includes(addonId) 
+    setSelectedAddons(prev =>
+      prev.includes(addonId)
         ? prev.filter(id => id !== addonId)
         : [...prev, addonId]
     );
@@ -74,55 +69,14 @@ export default function CheckoutPage() {
     return `$${(cents / 100).toFixed(2)}`;
   };
 
-  const handleCheckout = async (e) => {
-    e.preventDefault();
-    setIsProcessing(true);
+  const priceIds = [
+    PRICE_LOOKUP_KEYS.mainStory,
+    ...selectedAddons.map(id => ADDONS.find(a => a.id === id)?.lookupKey).filter(Boolean),
+  ];
 
-    try {
-      const response = await fetch('/api/create-checkout-session', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ...orderData,
-          customerEmail,
-          customerName,
-          selectedAddons: selectedAddons.map(id => {
-            const addon = ADDONS.find(a => a.id === id);
-            return {
-              id: addon.id,
-              name: addon.name,
-              price: addon.price,
-              priceId: addon.priceId,
-            };
-          }),
-        }),
-      });
-
-      const data = await response.json();
-
-      // Check for errors from the API
-      if (!response.ok) {
-        console.error('API Error:', data);
-        alert(`Checkout failed: ${data.error || 'Unknown error'}. ${data.details || ''}`);
-        return;
-      }
-
-      if (data.url) {
-        // Redirect to Stripe Checkout
-        window.location.href = data.url;
-      } else if (data.error) {
-        console.error('Checkout error:', data);
-        alert(`Checkout failed: ${data.error}. ${data.details || 'Please try again.'}`);
-      } else {
-        alert('Checkout failed. Please try again.');
-      }
-    } catch (error) {
-      console.error('Checkout error:', error);
-      alert(`An error occurred: ${error.message}. Please try again.`);
-    } finally {
-      setIsProcessing(false);
-    }
-  };
+  const returnUrl = orderData
+    ? `${window.location.origin}/order-confirmation?order_id=${orderData.orderId}&session_id={CHECKOUT_SESSION_ID}`
+    : '';
 
   if (!orderData) {
     return (
@@ -166,7 +120,15 @@ export default function CheckoutPage() {
             <Lock className="h-6 w-6 text-primary" />
             Secure Checkout
           </h1>
-          
+
+          {showEmbeddedCheckout ? (
+            <StripeEmbeddedCheckout
+              priceIds={priceIds}
+              orderId={orderData.orderId}
+              customerEmail={customerEmail}
+              returnUrl={returnUrl}
+            />
+          ) : (
           <div className="grid lg:grid-cols-3 gap-8">
             <div className="lg:col-span-2 space-y-6">
               {/* Customer Information */}
@@ -178,29 +140,29 @@ export default function CheckoutPage() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <form onSubmit={handleCheckout} className="space-y-4">
+                  <form className="space-y-4">
                     <div>
                       <Label htmlFor="email" className="font-display">Email Address *</Label>
-                      <Input 
-                        id="email" 
-                        type="email" 
-                        placeholder="your@email.com" 
-                        required 
+                      <Input
+                        id="email"
+                        type="email"
+                        placeholder="your@email.com"
+                        required
                         value={customerEmail}
                         onChange={(e) => setCustomerEmail(e.target.value)}
-                        className="bg-background border-border" 
+                        className="bg-background border-border"
                       />
                     </div>
-                    
+
                     <div>
                       <Label htmlFor="name" className="font-display">Full Name *</Label>
-                      <Input 
-                        id="name" 
-                        placeholder="John Doe" 
-                        required 
+                      <Input
+                        id="name"
+                        placeholder="John Doe"
+                        required
                         value={customerName}
                         onChange={(e) => setCustomerName(e.target.value)}
-                        className="bg-background border-border" 
+                        className="bg-background border-border"
                       />
                     </div>
                   </form>
@@ -217,16 +179,16 @@ export default function CheckoutPage() {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   {ADDONS.map(addon => (
-                    <div 
+                    <div
                       key={addon.id}
                       className={`flex items-start gap-4 p-4 rounded-lg border-2 transition-all cursor-pointer ${
-                        selectedAddons.includes(addon.id) 
-                          ? 'border-primary bg-primary/5' 
+                        selectedAddons.includes(addon.id)
+                          ? 'border-primary bg-primary/5'
                           : 'border-border hover:border-primary/50'
                       }`}
                       onClick={() => toggleAddon(addon.id)}
                     >
-                      <Checkbox 
+                      <Checkbox
                         checked={selectedAddons.includes(addon.id)}
                         onCheckedChange={() => toggleAddon(addon.id)}
                         className="mt-1"
@@ -244,14 +206,14 @@ export default function CheckoutPage() {
               </Card>
 
               <Button
-                onClick={handleCheckout}
-                disabled={isProcessing || !customerEmail || !customerName}
+                onClick={() => setShowEmbeddedCheckout(true)}
+                disabled={!customerEmail || !customerName}
                 className="w-full bg-primary text-primary-foreground hover:bg-primary/90 font-display text-lg py-6 shadow-xl shadow-primary/30 rounded-full"
                 data-track-event="checkout-submit"
               >
-                {isProcessing ? 'Processing...' : `Place Order - ${formatPrice(calculateTotal())}`}
+                {`Place Order - ${formatPrice(calculateTotal())}`}
               </Button>
-              
+
               <p className="text-xs text-center text-muted-foreground">
                 🔒 Secure payment powered by Stripe. Your payment information is encrypted.
               </p>
@@ -269,25 +231,18 @@ export default function CheckoutPage() {
                     <div className="space-y-1 text-sm text-muted-foreground">
                       <p><strong>Child:</strong> {orderData.childName}</p>
                       <p><strong>Age:</strong> {orderData.age}</p>
-                      <p><strong>Gender:</strong> {orderData.gender}</p>
                       <p><strong>Theme:</strong> {orderData.theme}</p>
-                      {orderData.dedication && (
-                        <p className="pt-2 border-t border-border mt-2">
-                          <strong>Dedication:</strong><br />
-                          <span className="italic">"{orderData.dedication}"</span>
-                        </p>
-                      )}
                     </div>
                   </div>
-                  
+
                   <Separator className="bg-border" />
-                  
+
                   <div className="space-y-2">
                     <div className="flex justify-between">
                       <span>Personalized Storybook</span>
                       <span>$19.99</span>
                     </div>
-                    
+
                     {selectedAddons.map(addonId => {
                       const addon = ADDONS.find(a => a.id === addonId);
                       return addon ? (
@@ -297,15 +252,15 @@ export default function CheckoutPage() {
                         </div>
                       ) : null;
                     })}
-                    
+
                     <Separator className="bg-border" />
-                    
+
                     <div className="flex justify-between font-display font-bold text-lg">
                       <span>Total</span>
                       <span className="text-primary">{formatPrice(calculateTotal())}</span>
                     </div>
                   </div>
-                  
+
                   <div className="text-xs text-muted-foreground space-y-1">
                     <p>✓ Instant digital download</p>
                     <p>✓ 32 full-color pages</p>
@@ -318,6 +273,7 @@ export default function CheckoutPage() {
               </Card>
             </div>
           </div>
+          )}
         </div>
       </div>
     </div>
