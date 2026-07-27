@@ -4,6 +4,7 @@ import { MetaPixel } from '@/components/MetaPixel';
 import { GoogleAnalytics } from '@/components/GoogleAnalytics';
 import { GoogleTagManager } from '@/components/GoogleTagManager';
 import { SpeedInsights } from '@vercel/speed-insights/next';
+import { Analytics } from '@vercel/analytics/next';
 
 const baloo2 = Baloo_2({ 
   subsets: ['latin'],
@@ -66,6 +67,7 @@ export default function RootLayout({ children }) {
         <MetaPixel />
         <GoogleAnalytics />
         <SpeedInsights />
+        <Analytics />
         {children}
       </body>
     </html>
