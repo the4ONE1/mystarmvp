@@ -40,8 +40,8 @@
 ### Environment Variables
 ```bash
 SUPABASE_URL=https://ktkebsvoqbxsirgluxeo.supabase.co
-SUPABASE_ANON_KEY=sb_publishable_JJBVYU3Lq8JcSzjJlYUF_w_klnn7bx6
-SUPABASE_SERVICE_ROLE_KEY=sb_secret_PGfAKowoASA3s9P8YJOMdQ_S8WGJEIg
+SUPABASE_ANON_KEY=<set in .env, not committed>
+SUPABASE_SERVICE_ROLE_KEY=<set in .env, not committed — rotate this key, it was previously committed in plaintext here>
 ```
 
 ---
