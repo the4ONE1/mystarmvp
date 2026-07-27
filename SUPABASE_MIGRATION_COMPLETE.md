@@ -40,9 +40,15 @@
 ### Environment Variables
 ```bash
 SUPABASE_URL=https://ktkebsvoqbxsirgluxeo.supabase.co
-SUPABASE_ANON_KEY=sb_publishable_JJBVYU3Lq8JcSzjJlYUF_w_klnn7bx6
-SUPABASE_SERVICE_ROLE_KEY=sb_secret_PGfAKowoASA3s9P8YJOMdQ_S8WGJEIg
+SUPABASE_ANON_KEY=<redacted — set via hosting provider env vars, see .env.example>
+SUPABASE_SERVICE_ROLE_KEY=<redacted — set via hosting provider env vars, see .env.example>
 ```
+
+> **Security note:** this file previously committed a live Supabase service role
+> key in plaintext. It has been redacted here, but the key was exposed in git
+> history and must be treated as compromised — rotate it in the Supabase
+> dashboard (Project Settings → API) and update `SUPABASE_SERVICE_ROLE_KEY` in
+> your hosting provider's environment variables.
 
 ---
 
