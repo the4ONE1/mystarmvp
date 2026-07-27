@@ -7,6 +7,26 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { CheckCircle2, Loader2, XCircle, Sparkles, Download, Mail } from 'lucide-react';
+import { trackGAEvent } from '@/components/GoogleAnalytics';
+import { trackMetaEvent } from '@/components/MetaPixel';
+import { trackGoogleAdsConversion } from '@/components/GoogleAdsConversion';
+
+// Fires purchase conversion events to GA4, Meta, and Google Ads exactly once
+// per session — without this, ad platforms have no way to know a click ever
+// turned into a sale.
+function trackPurchaseOnce(sessionId, { amount_total, currency, story_theme } = {}) {
+  if (typeof window === 'undefined' || !sessionId) return;
+  const key = 'converted_' + sessionId;
+  if (sessionStorage.getItem(key)) return;
+  sessionStorage.setItem(key, '1');
+
+  const value = typeof amount_total === 'number' ? amount_total / 100 : 19.99;
+  const cur = currency ? currency.toUpperCase() : 'USD';
+
+  trackGAEvent('purchase', 'ecommerce', story_theme || 'storybook', value);
+  trackMetaEvent('Purchase', { value, currency: cur });
+  trackGoogleAdsConversion({ value, currency: cur, transactionId: sessionId });
+}
 
 function OrderConfirmationContent() {
   const searchParams = useSearchParams();
@@ -55,12 +75,14 @@ function OrderConfirmationContent() {
               customer_email: 'confirmed',
               message: 'Order confirmed! Details loading...'
             });
+            trackPurchaseOnce(sessionId);
             return true; // Stop polling
           }
-          
+
           if (data.status === 'paid') {
             setOrderStatus('paid');
             setOrderData(data);
+            trackPurchaseOnce(sessionId, data);
             return true; // Stop polling
           } else if (data.status === 'pending') {
             // Keep polling
@@ -74,6 +96,7 @@ function OrderConfirmationContent() {
             customer_email: 'confirmed',
             message: 'Order confirmed! You will receive an email shortly.'
           });
+          trackPurchaseOnce(sessionId);
           return true;
         }
       } catch (error) {
@@ -84,6 +107,7 @@ function OrderConfirmationContent() {
           customer_email: 'confirmed',
           message: 'Order confirmed! You will receive an email with your storybook.'
         });
+        trackPurchaseOnce(sessionId);
         return true;
       }
       return false;
