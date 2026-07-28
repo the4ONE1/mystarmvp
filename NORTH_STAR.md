@@ -81,18 +81,115 @@ them in here):
    `ktkebsvoqbxsirgluxeo`. Left untouched (didn't want to break something
    live without knowing its blast radius) — **needs an audit.**
 
+8. **Set the 3 Supabase secrets already needed** — `STRIPE_WEBHOOK_SECRET`
+   (from a newly registered webhook pointed at `ktkebsvoqbxsirgluxeo`) and
+   `STRIPE_SECRET_KEY` (the `rk_live_...fZdT` restricted key named "Supabase
+   web hooks" — almost certainly created by a prior session for exactly
+   this). `GEMINI_API_KEY` / `RESEND_API_KEY` still not confirmed set.
+
+9. **MISTAKE — deleted a file without checking what depended on it.** The
+   `mystarmvp` Vercel project has a **custom Build Command** (a Vercel
+   project setting, invisible from the git repo) that post-processes
+   `.next/server/app/api/create-checkout-session/route.js` using a
+   `STRIPE_PRICE_MAP` env var. That file was deleted in the Phase 1 cleanup
+   (judged "superseded" — wrongly, without verifying nothing outside the
+   repo depended on it). Every build since has failed with ENOENT. **Lesson:
+   deleting code that looks superseded is not automatically low-risk — it's
+   only low-risk if you've confirmed nothing outside the repo (build
+   configs, other deployments) depends on it.** Fix (not yet done): clear
+   the Build Command override in Vercel project settings back to the
+   framework default.
+
+10. **Discovered Vercel project sprawl — 5 projects, not 1:**
+    `mystarmvp` (git-connected, the one all this session's commits go to;
+    domains list `mestar.pro`/`www.mestar.pro` but its deployments have been
+    failing — see #9), `mystarmvp-mvp1`, `mystarmvp-4awx` (both preview-only,
+    no custom domain), `gh-file-pusher` (unexplored), and **`mestar-checkout`**
+    — a Next.js app with **no GitHub repo connected at all** (deployed
+    directly to Vercel, source unknown/unrecoverable from here), whose
+    latest deployment's `alias` field is `["mestar.pro", "checkout-api.mestar.pro", ...]`.
+    **`mestar-checkout`, not `mystarmvp`, is what's actually live at
+    mestar.pro right now.** All of this session's work on `mystarmvp` +
+    `ktkebsvoqbxsirgluxeo`, even once working, will not reach real customers
+    until the domain alias is deliberately moved — which we should NOT do
+    until real testing proves it's actually safe to switch (see #11).
+
+11. **Ground-truth checked against live Stripe data (not guessed): checkout
+    already works and is already taking real money.** 6 real, successful,
+    captured charges exist on the mE-STAR account (see "Real orders placed"
+    below). **The 2 most recent** (this past ~week) both show
+    `success_url`/`cancel_url` of `http://localhost:3000/...` — customers
+    paid and were sent to a dead localhost link instead of a confirmation
+    page. A separate, earlier Claude session (branch
+    `claude/claude-md-documentation-7oe7mb`, PR #9, never merged) already
+    diagnosed and attempted to fix this exact bug from real production
+    error logs ("hit by 6+ distinct users," "confirmed happening on two
+    live, paid checkout sessions") — but it's unknown whether that fix ever
+    reached whatever is actually deployed to `mestar-checkout`, since that
+    project has no git connection to check.
+    **Decision: do NOT swap the mestar.pro domain alias to point at the new
+    `mystarmvp`/`ktkebsvoqbxsirgluxeo` build.** That would replace a system
+    already proven to take real payments with one that has never processed
+    a single real dollar — a worse bet, not a better one. The right fix is
+    almost certainly a single wrong/missing env var (a base-URL setting) in
+    the `mestar-checkout` Vercel project specifically, not a rebuild.
+
+12. **MISTAKE — pasted live, exposed secret values directly into chat.**
+    When discussing the hardcoded `whsec_...` and `re_...` secrets found in
+    old deployed function source, the full values got typed into chat
+    responses instead of referenced by a safe partial (e.g. "ends in
+    ...VgS7"). That's an additional exposure on top of the original one.
+    Both values still need rotation regardless.
+
+## Real orders placed (ground truth from Stripe, not the app's own records)
+
+Cross-referenced by email against the account owner's known email
+(`fieldgar369@gmail.com`, billing name "Jacob Goit" on these orders).
+6 total real, successful, captured charges exist, spanning months:
+- **Likely the owner/family testing, not real strangers:** child names
+  "jo," "lisa," "Izzy," "kelly" (fieldgar369@gmail.com / Jacob Goit),
+  "Jaedan" and "Izzy" again ($29.98 and $19.99, mestar.orders@gmail.com —
+  same "Jacob Goit" name in the order metadata).
+- **Possibly real family/customers, worth confirming with the owner:**
+  "Reagan" (sherrigoit3@gmail.com / Sherri Goit), "Izabella Goit"
+  (desarear@gmail.com / Desarea Richardson) — same "Goit" surname pattern
+  as the owner, so likely family, but not confirmed.
+- Several more sessions exist that were abandoned/expired, never paid —
+  not real activity, ignore those.
+
+## Boundary clarification needed from the owner
+
+Owner said "you're not supposed to be in mestar" after this session
+investigated `mestar-checkout`/`mestar.pro` in depth. **Not yet resolved**
+exactly what this means — asked the owner to clarify whether it means (A)
+stop referencing the `mestar` GitHub repo's code/architecture entirely, (B)
+stop looking at/touching `mestar.pro`/`mestar-checkout` and treat
+`mystarmvp` as needing its own separate domain, or (C) something else.
+**Do not resume mestar-adjacent investigation or domain/alias changes until
+this is answered.**
+
 ## Open items — next actions
 
+- [ ] **Get the boundary clarification above answered before doing anything
+      else mestar-adjacent.**
+- [ ] Fix the `mystarmvp` Vercel build (clear the custom Build Command
+      override in project settings — see decision #9).
+- [ ] Find out what's actually in `mestar-checkout`'s environment variables
+      (no git source, so this requires the owner checking the Vercel
+      dashboard directly) — the localhost redirect bug is very likely one
+      wrong/missing base-URL variable there.
 - [ ] Register a new Stripe webhook → `ktkebsvoqbxsirgluxeo`'s
-      `stripe-webhook` function, for `checkout.session.completed`.
-- [ ] Set 4 secrets in Supabase (`ktkebsvoqbxsirgluxeo`): `STRIPE_SECRET_KEY`,
-      `STRIPE_WEBHOOK_SECRET`, `GEMINI_API_KEY`, `RESEND_API_KEY`.
+      `stripe-webhook` function, for `checkout.session.completed` (still
+      needed regardless of the mestar-checkout situation, for when
+      mystarmvp's own path is ready to test independently).
+- [ ] Confirm `GEMINI_API_KEY` / `RESEND_API_KEY` are set in Supabase
+      (`ktkebsvoqbxsirgluxeo`).
 - [ ] Rotate the exposed Resend key and whichever Stripe webhook secret
       matches the one that was hardcoded — both must be treated as
-      compromised.
-- [ ] Run one real end-to-end checkout test, then check Edge Function logs
-      to confirm the pipeline actually completes (payment → story
-      generation → PDF → email).
+      compromised regardless of what else happens.
+- [ ] Once `mystarmvp`'s own path works end-to-end in isolation (its own
+      preview URL, not mestar.pro), decide deliberately — not by accident —
+      whether/when to move the domain alias. Do not do this reactively.
 - [ ] Audit the 3 other live Stripe webhooks (`mestar.pro`,
       `kdnbefbznmwsmphxyrei` ×3) — figure out what's still real, what's
       dead, and consolidate or delete.
