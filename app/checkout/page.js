@@ -10,7 +10,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Separator } from '@/components/ui/separator';
 import { ArrowLeft, CreditCard, Lock, Sparkles, Plus } from 'lucide-react';
 import { StripeEmbeddedCheckout } from '@/components/StripeEmbeddedCheckout';
-import { PRICE_LOOKUP_KEYS } from '@/lib/mestarClient';
+import { PRICE_LOOKUP_KEYS } from '@/lib/backendClient';
 
 // "additional-character" isn't offered yet — mystarmvp's personalization form
 // doesn't collect a supporting-character name/photo, and mestar's pipeline

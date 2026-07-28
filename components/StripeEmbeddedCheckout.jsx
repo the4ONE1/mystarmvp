@@ -2,7 +2,7 @@
 
 import { loadStripe } from '@stripe/stripe-js';
 import { EmbeddedCheckoutProvider, EmbeddedCheckout } from '@stripe/react-stripe-js';
-import { supabase, getStripeEnvironment } from '@/lib/mestarClient';
+import { supabase, getStripeEnvironment } from '@/lib/backendClient';
 
 let stripePromise;
 function getStripe() {
@@ -12,10 +12,10 @@ function getStripe() {
   return stripePromise;
 }
 
-// Mirrors mestar's src/components/StripeEmbeddedCheckout.tsx: the client
-// secret comes from mestar's create-checkout Edge Function (which resolves
-// Stripe Price lookup keys and creates the session server-side), not from
-// any Stripe SDK call made in this app.
+// Mirrors mestar's src/components/StripeEmbeddedCheckout.tsx pattern: the
+// client secret comes from this project's create-checkout Edge Function
+// (which resolves Stripe Price lookup keys and creates the session
+// server-side), not from any Stripe SDK call made in this app.
 export function StripeEmbeddedCheckout({ priceIds, orderId, customerEmail, returnUrl }) {
   const fetchClientSecret = async () => {
     const { data, error } = await supabase.functions.invoke('create-checkout', {

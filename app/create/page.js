@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { PhotoUpload } from '@/components/PhotoUpload';
 import { PersonalizationForm } from '@/components/PersonalizationForm';
-import { createPendingOrder } from '@/lib/mestarClient';
+import { createPendingOrder } from '@/lib/backendClient';
 import { ArrowLeft, Camera, Edit3, ShoppingCart, Sparkles } from 'lucide-react';
 
 export default function CreateStoryPage() {
@@ -65,9 +65,9 @@ export default function CreateStoryPage() {
     setIsSubmitting(true);
 
     try {
-      // Creates the order in mestar's backend and uploads the photo (if any)
-      // server-side, before we ever touch Stripe checkout.
-      const { orderId, recoveryToken } = await createPendingOrder({
+      // Creates the order and uploads the photo (if any) server-side,
+      // before we ever touch Stripe checkout.
+      const { orderId } = await createPendingOrder({
         childName: formData.childName,
         age: formData.age,
         theme: formData.theme,
@@ -77,7 +77,6 @@ export default function CreateStoryPage() {
       sessionStorage.setItem('storyOrder', JSON.stringify({
         ...formData,
         orderId,
-        recoveryToken,
         photos: photos.map(p => p.preview),
         timestamp: new Date().toISOString(),
       }));

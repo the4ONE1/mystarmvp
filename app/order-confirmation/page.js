@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { CheckCircle2, Loader2, XCircle, Sparkles, Download, Mail } from 'lucide-react';
-import { getOrderStatus } from '@/lib/mestarClient';
+import { getOrderStatus } from '@/lib/backendClient';
 
 const PROGRESS_LABELS = {
   pending_payment: 'Waiting for payment to finish...',
@@ -25,23 +25,18 @@ function OrderConfirmationContent() {
   const orderIdFromUrl = searchParams.get('order_id');
 
   const [orderId, setOrderId] = useState(null);
-  const [recoveryToken, setRecoveryToken] = useState(null);
   const [status, setStatus] = useState('pending_payment');
   const [orderData, setOrderData] = useState(null);
   const [error, setError] = useState(null);
 
   // Resolve which order to poll: the return_url param is primary, the
-  // sessionStorage record from /create (which has the recovery token) fills
-  // in the rest.
+  // sessionStorage record from /create fills in as a fallback.
   useEffect(() => {
     let storedOrderId = null;
-    let storedToken = null;
     try {
       const stored = sessionStorage.getItem('storyOrder');
       if (stored) {
-        const parsed = JSON.parse(stored);
-        storedOrderId = parsed.orderId || null;
-        storedToken = parsed.recoveryToken || null;
+        storedOrderId = JSON.parse(stored).orderId || null;
       }
     } catch {
       // ignore
@@ -54,9 +49,6 @@ function OrderConfirmationContent() {
     }
 
     setOrderId(resolvedOrderId);
-    if (storedOrderId === resolvedOrderId && storedToken) {
-      setRecoveryToken(storedToken);
-    }
   }, [orderIdFromUrl]);
 
   useEffect(() => {
@@ -69,7 +61,7 @@ function OrderConfirmationContent() {
       if (cancelled) return;
 
       try {
-        const data = await getOrderStatus(orderId, recoveryToken);
+        const data = await getOrderStatus(orderId);
         if (cancelled) return;
 
         if (data.status === 'not_found') {
@@ -99,7 +91,7 @@ function OrderConfirmationContent() {
 
     poll();
     return () => { cancelled = true; };
-  }, [orderId, recoveryToken]);
+  }, [orderId]);
 
   if (error) {
     return (
