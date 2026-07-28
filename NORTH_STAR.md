@@ -157,16 +157,18 @@ Cross-referenced by email against the account owner's known email
 - Several more sessions exist that were abandoned/expired, never paid —
   not real activity, ignore those.
 
-## Boundary clarification needed from the owner
+## Boundary — RESOLVED
 
-Owner said "you're not supposed to be in mestar" after this session
-investigated `mestar-checkout`/`mestar.pro` in depth. **Not yet resolved**
-exactly what this means — asked the owner to clarify whether it means (A)
-stop referencing the `mestar` GitHub repo's code/architecture entirely, (B)
-stop looking at/touching `mestar.pro`/`mestar-checkout` and treat
-`mystarmvp` as needing its own separate domain, or (C) something else.
-**Do not resume mestar-adjacent investigation or domain/alias changes until
-this is answered.**
+Owner confirmed: the old `mestar` GitHub repo (React/Lovable build) is
+**permanently off-limits** — never read, reference, or think about it.
+**Sole exception:** pulling a key/token/env var value from it directly, so
+the owner never has to manually copy-paste-reveal a credential themselves.
+`mestar.pro` / `mestar-checkout` (the live Next.js site actually taking
+real payments) is **explicitly in scope** — it is NOT the old repo, just
+shares the brand name. Confirmed via live fetch: `/create` (photo upload +
+theme flow) loads correctly, real captured payments exist. The only
+confirmed bug is the post-payment redirect going to `localhost` instead of
+a confirmation page.
 
 ## Open items — next actions
 
