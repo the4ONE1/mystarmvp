@@ -3,6 +3,7 @@ import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Star, Sparkles, BookOpen, Shield, Download, FileText, CheckCircle2, Clock } from 'lucide-react';
 import { Footer } from '@/components/Footer';
+import { HomeIntroOverlay } from '@/components/HomeIntroOverlay';
 
 export const metadata = {
   title: 'MESTAR — Personalized Children\'s Storybooks | Make Your Child the Star',
@@ -107,6 +108,8 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen">
+      <HomeIntroOverlay />
+
       {/* Announcement Bar */}
       <div className="bg-primary text-primary-foreground text-center py-2 px-4">
         <p className="text-sm font-display font-bold">
