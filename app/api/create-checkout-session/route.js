@@ -16,16 +16,28 @@ export async function POST(request) {
       gender,
       theme, 
       dedication,
+      photos = [],
       selectedAddons = [] 
     } = body;
 
     // Use childAge if age is not provided
     const childAgeValue = age || childAge;
+    const normalizedPhotos = Array.isArray(photos)
+      ? photos.filter((photo) => typeof photo === 'string' && photo.trim().length > 0)
+      : [];
 
     // Validate required fields
-    if (!customerEmail || !childName || !theme) {
+    if (
+      !customerEmail?.trim() ||
+      !customerName?.trim() ||
+      !childName?.trim() ||
+      !String(childAgeValue ?? '').trim() ||
+      !gender?.trim() ||
+      !theme?.trim() ||
+      normalizedPhotos.length === 0
+    ) {
       return NextResponse.json(
-        { error: 'Missing required fields: customerEmail, childName, theme' },
+        { error: 'Missing required fields: customerEmail, customerName, childName, age, gender, theme, photos' },
         { status: 400 }
       );
     }
@@ -102,7 +114,7 @@ export async function POST(request) {
           child_name: childName,
           child_age: String(childAgeValue || ''),
           story_theme: theme,
-          photo_urls: [],
+          photo_urls: normalizedPhotos,
           created_at: new Date().toISOString(),
         });
       } catch (dbError) {
