@@ -38,6 +38,23 @@ const ADDONS = [
   },
 ];
 
+const hasValue = (value) => typeof value === 'string' && value.trim().length > 0;
+
+const isValidOrderData = (data) => {
+  if (!data || typeof data !== 'object') return false;
+  const ageValue = data.age ?? data.childAge;
+  const hasAge = String(ageValue ?? '').trim().length > 0;
+  const hasPhotos = Array.isArray(data.photos) && data.photos.length > 0;
+
+  return (
+    hasValue(data.childName) &&
+    hasAge &&
+    hasValue(data.gender) &&
+    hasValue(data.theme) &&
+    hasPhotos
+  );
+};
+
 export default function CheckoutPage() {
   const router = useRouter();
   const [orderData, setOrderData] = useState(null);
@@ -48,10 +65,24 @@ export default function CheckoutPage() {
 
   useEffect(() => {
     const stored = sessionStorage.getItem('storyOrder');
-    if (stored) {
-      setOrderData(JSON.parse(stored));
+    if (!stored) {
+      router.replace('/create');
+      return;
     }
-  }, []);
+
+    try {
+      const parsed = JSON.parse(stored);
+      if (!isValidOrderData(parsed)) {
+        sessionStorage.removeItem('storyOrder');
+        router.replace('/create');
+        return;
+      }
+      setOrderData(parsed);
+    } catch {
+      sessionStorage.removeItem('storyOrder');
+      router.replace('/create');
+    }
+  }, [router]);
 
   const toggleAddon = (addonId) => {
     setSelectedAddons(prev => 
@@ -129,7 +160,7 @@ export default function CheckoutPage() {
       <div className="min-h-screen bg-background flex items-center justify-center">
         <Card className="bg-card border-2 border-border">
           <CardContent className="p-12 text-center">
-            <p className="text-lg text-muted-foreground mb-4">No order data found</p>
+            <p className="text-lg text-muted-foreground mb-4">Redirecting to story creation...</p>
             <Link href="/create">
               <Button className="bg-primary text-primary-foreground hover:bg-primary/90 font-display">
                 <Sparkles className="mr-2 w-4 h-4" />

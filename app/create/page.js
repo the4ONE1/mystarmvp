@@ -13,6 +13,7 @@ export default function CreateStoryPage() {
   const router = useRouter();
   const [step, setStep] = useState(1);
   const [photos, setPhotos] = useState([]);
+  const [photoError, setPhotoError] = useState('');
   const [personalizationData, setPersonalizationData] = useState(null);
   const [savedData, setSavedData] = useState(null);
 
@@ -33,6 +34,7 @@ export default function CreateStoryPage() {
 
   const handlePhotosChange = (newPhotos) => {
     setPhotos(newPhotos);
+    setPhotoError('');
     // Auto-save to localStorage
     saveDraft({ photos: newPhotos });
   };
@@ -51,6 +53,10 @@ export default function CreateStoryPage() {
 
   const handleNextStep = () => {
     if (step === 1) {
+      if (photos.length === 0) {
+        setPhotoError('Please upload at least one photo to continue.');
+        return;
+      }
       setStep(2);
       saveDraft({ step: 2 });
     }
@@ -143,6 +149,9 @@ export default function CreateStoryPage() {
               </CardHeader>
               <CardContent className="space-y-6">
                 <PhotoUpload onPhotosChange={handlePhotosChange} />
+                {photoError && (
+                  <p className="text-sm text-red-500">{photoError}</p>
+                )}
                 
                 <div className="flex justify-between pt-6 border-t border-border">
                   <Link href="/">
@@ -153,6 +162,7 @@ export default function CreateStoryPage() {
                   </Link>
                   <Button
                     onClick={handleNextStep}
+                    disabled={photos.length === 0}
                     className="bg-primary text-primary-foreground hover:bg-primary/90 font-display shadow-lg shadow-primary/30"
                   >
                     Continue
