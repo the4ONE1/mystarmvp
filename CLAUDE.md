@@ -1,3 +1,10 @@
+# Read NORTH_STAR.md first
+
+Before doing anything else in this repo, read `NORTH_STAR.md` — it's the
+running record of the end goal, the state of both codebases (mestar +
+mystarmvp), every real decision made and why, and what's still open. Update
+it whenever a real decision gets made, not after the fact.
+
 # Operating principles
 
 - When you find something that is clearly broken, exposed, or wrong, and the fix is one you're confident about and low-risk, **fix it immediately** — don't stop to ask permission first. Asking approval for an obviously-necessary, low-downside fix just slows things down for no reason.
