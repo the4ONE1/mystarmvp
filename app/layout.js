@@ -3,6 +3,7 @@ import './globals.css';
 import { MetaPixel } from '@/components/MetaPixel';
 import { GoogleAnalytics } from '@/components/GoogleAnalytics';
 import { GoogleTagManager } from '@/components/GoogleTagManager';
+import { Providers } from './providers';
 
 const baloo2 = Baloo_2({ 
   subsets: ['latin'],
@@ -64,7 +65,7 @@ export default function RootLayout({ children }) {
         <GoogleTagManager />
         <MetaPixel />
         <GoogleAnalytics />
-        {children}
+        <Providers>{children}</Providers>
       </body>
     </html>
   );
