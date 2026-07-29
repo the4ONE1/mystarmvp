@@ -65,7 +65,7 @@ export default function PrivacyPolicyPage() {
             </p>
             <ul className="list-disc pl-6 space-y-2 text-foreground/90 mb-4">
               <li><strong>Your Information:</strong> Name, email address</li>
-              <li><strong>Child's Information:</strong> First name, age (optional), gender (optional)</li>
+              <li><strong>Child's Information:</strong> First name, age group</li>
               <li><strong>Story Details:</strong> Theme selection, dedication message (optional)</li>
               <li><strong>Photos:</strong> Images you upload for personalization</li>
               <li><strong>Payment Information:</strong> Processed securely through Stripe (we do not store payment card details)</li>

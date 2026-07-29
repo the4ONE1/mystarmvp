@@ -268,8 +268,7 @@ export default function CheckoutPage() {
                     <h3 className="font-display font-semibold mb-2">Your Story</h3>
                     <div className="space-y-1 text-sm text-muted-foreground">
                       <p><strong>Child:</strong> {orderData.childName}</p>
-                      <p><strong>Age:</strong> {orderData.age}</p>
-                      <p><strong>Gender:</strong> {orderData.gender}</p>
+                      <p><strong>Age Group:</strong> {orderData.ageGroup}</p>
                       <p><strong>Theme:</strong> {orderData.theme}</p>
                       {orderData.dedication && (
                         <p className="pt-2 border-t border-border mt-2">

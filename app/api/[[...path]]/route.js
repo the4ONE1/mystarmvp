@@ -29,7 +29,7 @@ export async function POST(request) {
     // Create Checkout Session
     if (pathname.includes('/api/create-checkout-session')) {
       const body = await request.json();
-      const { childName, age, gender, theme, dedication } = body;
+      const { childName, ageGroup, theme, dedication } = body;
 
       try {
         // Check if Stripe is configured
@@ -58,8 +58,7 @@ export async function POST(request) {
           cancel_url: `${DOMAIN_URL}/checkout/cancel`,
           metadata: {
             childName: childName || '',
-            age: String(age || ''),
-            gender: gender || '',
+            age_group: ageGroup || '',
             theme: theme || '',
             dedication: dedication || '',
           },

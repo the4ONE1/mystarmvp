@@ -15,16 +15,11 @@ export async function POST(request) {
       customerEmail, 
       customerName,
       childName, 
-      age,
-      childAge, // Accept both age and childAge
-      gender,
+      ageGroup,
       theme, 
       dedication,
       selectedAddons = [] 
     } = body;
-
-    // Use childAge if age is not provided
-    const childAgeValue = age || childAge;
 
     // Validate required fields
     if (!customerEmail || !childName || !theme) {
@@ -73,8 +68,7 @@ export async function POST(request) {
       metadata: {
         customer_name: customerName || '',
         child_name: childName,
-        age: String(childAgeValue || ''),
-        gender: gender || '',
+        age_group: ageGroup || '',
         theme: theme,
         dedication: dedication || '',
         selected_addons: JSON.stringify(selectedAddons),
@@ -96,7 +90,7 @@ export async function POST(request) {
           currency: 'usd',
           status: 'pending',
           child_name: childName,
-          child_age: String(childAgeValue || ''),
+          child_age: ageGroup || '',
           story_theme: theme,
           photo_urls: [],
           created_at: new Date().toISOString(),
