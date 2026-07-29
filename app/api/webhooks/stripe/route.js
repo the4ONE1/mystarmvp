@@ -75,7 +75,7 @@ export async function POST(request) {
           currency: session.currency,
           status: 'paid',
           child_name: session.metadata?.child_name || '',
-          child_age: session.metadata?.age || '',
+          child_age: session.metadata?.age_group || '',
           story_theme: session.metadata?.theme || '',
           photo_urls: [],
           created_at: new Date().toISOString(),

@@ -4,7 +4,6 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Card, CardContent } from '@/components/ui/card';
 import { Sparkles, Rocket, Crown, Star, Heart, Castle } from 'lucide-react';
 
@@ -17,11 +16,17 @@ const storyThemes = [
   { id: 'castle', title: 'Medieval Quest', icon: Castle, color: 'from-gray-600 to-blue-700' },
 ];
 
+const ageGroups = [
+  { id: '2-under', label: '2 & Under' },
+  { id: '3-6', label: '3-6' },
+  { id: '7-10', label: '7-10' },
+  { id: '11-up', label: '11 & Up' },
+];
+
 export function PersonalizationForm({ onSubmit, initialData = {} }) {
   const [formData, setFormData] = useState({
     childName: initialData.childName || '',
-    age: initialData.age || '',
-    gender: initialData.gender || '',
+    ageGroup: initialData.ageGroup || '',
     theme: initialData.theme || '',
     dedication: initialData.dedication || '',
   });
@@ -43,14 +48,8 @@ export function PersonalizationForm({ onSubmit, initialData = {} }) {
       newErrors.childName = 'Child\'s name is required';
     }
     
-    if (!formData.age) {
-      newErrors.age = 'Age is required';
-    } else if (formData.age < 1 || formData.age > 12) {
-      newErrors.age = 'Age must be between 1 and 12';
-    }
-    
-    if (!formData.gender) {
-      newErrors.gender = 'Please select gender';
+    if (!formData.ageGroup) {
+      newErrors.ageGroup = 'Please select an age group';
     }
     
     if (!formData.theme) {
@@ -77,68 +76,44 @@ export function PersonalizationForm({ onSubmit, initialData = {} }) {
           <h3 className="text-xl font-bold text-gray-900 mb-4">Child Details</h3>
         </div>
         
-        <div className="grid md:grid-cols-2 gap-6">
-          <div className="space-y-2">
-            <Label htmlFor="childName" className="text-base font-semibold">
-              Child's Name *
-            </Label>
-            <Input
-              id="childName"
-              value={formData.childName}
-              onChange={(e) => handleChange('childName', e.target.value)}
-              placeholder="Enter child's name"
-              className={`text-base ${errors.childName ? 'border-red-500' : ''}`}
-            />
-            {errors.childName && (
-              <p className="text-sm text-red-500">{errors.childName}</p>
-            )}
-          </div>
-          
-          <div className="space-y-2">
-            <Label htmlFor="age" className="text-base font-semibold">
-              Age *
-            </Label>
-            <Input
-              id="age"
-              type="number"
-              min="1"
-              max="12"
-              value={formData.age}
-              onChange={(e) => handleChange('age', e.target.value)}
-              placeholder="Age (1-12)"
-              className={`text-base ${errors.age ? 'border-red-500' : ''}`}
-            />
-            {errors.age && <p className="text-sm text-red-500">{errors.age}</p>}
-          </div>
-        </div>
-        
         <div className="space-y-2">
-          <Label className="text-base font-semibold">Gender *</Label>
-          <RadioGroup
-            value={formData.gender}
-            onValueChange={(value) => handleChange('gender', value)}
-            className="flex gap-4"
-          >
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="boy" id="boy" />
-              <Label htmlFor="boy" className="cursor-pointer font-normal">
-                Boy
-              </Label>
-            </div>
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="girl" id="girl" />
-              <Label htmlFor="girl" className="cursor-pointer font-normal">
-                Girl
-              </Label>
-            </div>
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="other" id="other" />
-              <Label htmlFor="other" className="cursor-pointer font-normal">
-                Other
-              </Label>
-            </div>
-          </RadioGroup>
-          {errors.gender && <p className="text-sm text-red-500">{errors.gender}</p>}
+          <Label htmlFor="childName" className="text-base font-semibold">
+            Child's Name *
+          </Label>
+          <Input
+            id="childName"
+            value={formData.childName}
+            onChange={(e) => handleChange('childName', e.target.value)}
+            placeholder="Enter child's name"
+            className={`text-base ${errors.childName ? 'border-red-500' : ''}`}
+          />
+          {errors.childName && (
+            <p className="text-sm text-red-500">{errors.childName}</p>
+          )}
+        </div>
+
+        <div className="space-y-2">
+          <Label className="text-base font-semibold">Age Group *</Label>
+          <div className="flex flex-wrap gap-3">
+            {ageGroups.map((group) => {
+              const isSelected = formData.ageGroup === group.id;
+              return (
+                <button
+                  key={group.id}
+                  type="button"
+                  onClick={() => handleChange('ageGroup', group.id)}
+                  className={`px-6 py-3 rounded-full border-2 font-semibold transition-all ${
+                    isSelected
+                      ? 'bg-purple-600 border-purple-600 text-white shadow-lg'
+                      : 'bg-white border-gray-200 text-gray-700 hover:border-purple-300'
+                  }`}
+                >
+                  {group.label}
+                </button>
+              );
+            })}
+          </div>
+          {errors.ageGroup && <p className="text-sm text-red-500">{errors.ageGroup}</p>}
         </div>
       </div>
 

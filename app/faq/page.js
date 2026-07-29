@@ -11,7 +11,7 @@ export const metadata = {
 const faqs = [
   {
     question: 'How does the personalization work?',
-    answer: 'Simply enter your child\'s name, age, gender, and choose a story theme. You can also upload photos to make the story even more personal. Our system creates a unique storybook where your child is the main character.',
+    answer: 'Simply enter your child\'s name, select their age group, and choose a story theme. You can also upload photos to make the story even more personal. Our system creates a unique storybook where your child is the main character.',
   },
   {
     question: 'What format is the storybook delivered in?',

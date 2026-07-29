@@ -15,7 +15,7 @@ export function HowItWorks() {
       icon: Edit3,
       number: '2',
       title: 'Customize Details',
-      description: 'Choose name, gender, and pick from magical story themes',
+      description: 'Choose name, age group, and pick from magical story themes',
       color: 'bg-pink-100 text-pink-600',
     },
     {

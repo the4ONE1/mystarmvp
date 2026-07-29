@@ -17,7 +17,7 @@ export const metadata = {
 
 const ProductCard = ({ title, description, price, image, imageAlt }) => {
   return (
-    <Link href="/create" className="group block h-full" aria-label={`Create ${title} personalized storybook`}>
+    <Link href="/create" className="group block h-full" aria-label="Create your personalized storybook">
       <div className="relative h-full flex flex-col bg-card rounded-3xl overflow-hidden border border-border hover:border-primary/60 transition-all duration-300 hover:shadow-2xl hover:shadow-primary/20 hover:-translate-y-1">
         {/* Top ribbon */}
         <div className="absolute top-3 left-3 z-10 inline-flex items-center gap-1 bg-primary text-primary-foreground text-[10px] font-bold uppercase tracking-wider rounded-full px-2.5 py-1 shadow-md">
@@ -83,26 +83,26 @@ const ProductCard = ({ title, description, price, image, imageAlt }) => {
 export default function HomePage() {
   const products = [
     {
-      title: 'Space Adventure',
-      description: 'Explore galaxies and discover new planets in this cosmic adventure',
+      title: 'A Cosmic Adventure',
+      description: 'Explore new worlds and go on an unforgettable adventure written just for your child',
       price: '19.99',
       image: 'https://images.unsplash.com/photo-1620190133480-6a462f034658?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1NTJ8MHwxfHNlYXJjaHwyfHxtYWdpY2FsJTIwc3Rvcnlib29rfGVufDB8fHx8MTc4MjcwMDA2M3ww&ixlib=rb-4.1.0&q=85',
-      imageAlt: 'Space themed personalized storybook for children',
+      imageAlt: 'Sample personalized storybook for children',
     },
     {
-      title: 'Royal Princess',
-      description: 'Rule a magical kingdom with grace and courage in this royal tale',
+      title: 'A Magical Tale',
+      description: 'A magical, one-of-a-kind story where your child takes center stage as the hero',
       price: '19.99',
       image: 'https://images.pexels.com/photos/6157218/pexels-photo-6157218.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940',
-      imageAlt: 'Princess themed personalized storybook for children',
+      imageAlt: 'Sample personalized storybook for children',
     },
     {
-      title: 'Superhero Mission',
-      description: 'Save the day with special powers and become the hero everyone needs',
+      title: 'A Heroic Journey',
+      description: 'An exciting journey full of courage and wonder, starring your child as the hero',
       price: '19.99',
       image: 'https://images.pexels.com/photos/35610365/pexels-photo-35610365.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940',
-      imageAlt: 'Superhero themed personalized storybook for children',
-    }
+      imageAlt: 'Sample personalized storybook for children',
+    },
   ];
 
   return (
