@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { createOrder, updateOrder, isSupabaseConfigured } from '@/lib/supabase';
+import { validateWebhookEnv } from '@/lib/stripe-config';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'sk_test_placeholder', {
   apiVersion: '2023-10-16',
@@ -15,7 +16,15 @@ export async function POST(request) {
 
     // Check if webhook is configured
     if (!signature || WEBHOOK_SECRET.includes('placeholder')) {
-      console.log('Webhook: No signature or placeholder secret, skipping verification');
+      const configErrors = validateWebhookEnv();
+      if (configErrors.length > 0) {
+        // Fail loudly in the logs: a missing/placeholder webhook secret means
+        // paid orders will never be marked as "paid", even though the
+        // customer was charged successfully.
+        console.error('Stripe webhook is misconfigured, order fulfillment will not run:', configErrors);
+      } else {
+        console.log('Webhook: No signature present, skipping verification');
+      }
       return NextResponse.json({ received: true, mock: true });
     }
 

@@ -19,7 +19,7 @@ const ADDONS = [
     description: 'Professional narration of your personalized story',
     price: 999,
     priceDisplay: '$9.99',
-    priceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_AUDIOBOOK || 'price_1ToarQFABTce6JHknM5PrJ4c',
+    priceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_AUDIOBOOK || 'price_1ToKcS2Y59OoFxxwZGKL6fKa',
   },
   {
     id: 'coloring-book',
@@ -27,7 +27,7 @@ const ADDONS = [
     description: 'Printable coloring pages featuring your story',
     price: 399,
     priceDisplay: '$3.99',
-    priceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_COLORING_BOOK || 'price_1ToarUFABTce6JHk4gzcClnG',
+    priceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_COLORING_BOOK || 'price_1ToKZU2Y59OoFxxwMj9qkHN8',
   },
   {
     id: 'additional-character',
@@ -35,7 +35,7 @@ const ADDONS = [
     description: 'Add a sibling, friend, or pet to the story',
     price: 999,
     priceDisplay: '$9.99',
-    priceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_ADDITIONAL_CHARACTER || 'price_1ToarfFABTce6JHk6JWz2bdq',
+    priceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_ADDITIONAL_CHARACTER || 'price_1ToK1g2Y59OoFxxw9tWcOySa',
   },
 ];
 
