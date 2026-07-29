@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { createOrder, isSupabaseConfigured } from '@/lib/supabase';
+import { validateCheckoutEnv } from '@/lib/stripe-config';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
   apiVersion: '2023-10-16',
@@ -10,6 +11,21 @@ const DOMAIN_URL = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
 
 export async function POST(request) {
   try {
+    // Fail loudly instead of silently attempting Stripe calls with a
+    // missing/placeholder/test-mode key, which previously resulted in
+    // confusing 500 errors with no clear indication of the root cause.
+    const configErrors = validateCheckoutEnv();
+    if (configErrors.length > 0) {
+      console.error('Stripe checkout is misconfigured:', configErrors);
+      return NextResponse.json(
+        {
+          error: 'Stripe is not configured correctly',
+          details: 'The server is missing valid live Stripe credentials or Price IDs. Please contact support.',
+        },
+        { status: 500 }
+      );
+    }
+
     const body = await request.json();
     const { 
       customerEmail, 
