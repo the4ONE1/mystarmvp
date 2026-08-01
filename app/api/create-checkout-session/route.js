@@ -3,7 +3,10 @@ import Stripe from 'stripe';
 import { createOrder, isSupabaseConfigured } from '@/lib/supabase';
 import { validateCheckoutEnv } from '@/lib/stripe-config';
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+// Fall back to a placeholder so module load (including Next.js's build-time
+// page data collection) never throws when the env var is unset — actual
+// requests are still rejected loudly by validateCheckoutEnv() below.
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'sk_test_placeholder', {
   apiVersion: '2023-10-16',
 });
 

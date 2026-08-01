@@ -14,6 +14,7 @@ function OrderConfirmationContent() {
   const [orderStatus, setOrderStatus] = useState('checking'); // checking, paid, error
   const [orderData, setOrderData] = useState(null);
   const [pollCount, setPollCount] = useState(0);
+  const [pdfUrl, setPdfUrl] = useState(null);
 
   useEffect(() => {
     if (!sessionId) {
@@ -40,9 +41,10 @@ function OrderConfirmationContent() {
             return true; // Stop polling
           }
           
-          if (data.status === 'paid') {
+          if (data.status === 'paid' || data.status === 'fulfilled') {
             setOrderStatus('paid');
             setOrderData(data);
+            if (data.pdf_url) setPdfUrl(data.pdf_url);
             return true; // Stop polling
           } else if (data.status === 'pending') {
             // Keep polling
@@ -100,6 +102,34 @@ function OrderConfirmationContent() {
     });
   }, [sessionId, pollCount]);
 
+  // Once payment is confirmed, keep checking (separately from the payment
+  // poll above) for the generated PDF to appear so we can offer an
+  // immediate download instead of only promising a follow-up email.
+  useEffect(() => {
+    if (orderStatus !== 'paid' || pdfUrl || !sessionId) return;
+
+    let attempts = 0;
+    const interval = setInterval(async () => {
+      attempts += 1;
+      try {
+        const response = await fetch(`/api/order-status?session_id=${sessionId}`);
+        if (response.ok) {
+          const data = await response.json();
+          if (data.pdf_url) {
+            setPdfUrl(data.pdf_url);
+            clearInterval(interval);
+          }
+        }
+      } catch (error) {
+        console.error('Error polling for storybook PDF:', error);
+      }
+      // Stop after ~2 minutes; the customer will still get the delivery email.
+      if (attempts >= 24) clearInterval(interval);
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, [orderStatus, pdfUrl, sessionId]);
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
@@ -153,6 +183,31 @@ function OrderConfirmationContent() {
                 <p className="text-xl text-foreground/80 mb-8">
                   Thank you for your purchase! Your personalized storybook is being created.
                 </p>
+
+                {pdfUrl ? (
+                  <div className="bg-primary/10 border border-primary/30 rounded-lg p-6 mb-8">
+                    <h3 className="font-bold text-lg mb-3 flex items-center gap-2 justify-center">
+                      <Download className="w-5 h-5" />
+                      Your Storybook is Ready!
+                    </h3>
+                    <Button asChild size="lg" className="bg-primary text-primary-foreground hover:bg-primary/90 font-display">
+                      <a href={pdfUrl} target="_blank" rel="noopener noreferrer">
+                        <Download className="mr-2 w-5 h-5" />
+                        Download Your Storybook PDF
+                      </a>
+                    </Button>
+                    <p className="text-xs text-muted-foreground mt-3">
+                      We also emailed this link to you — it stays valid for 7 days.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="bg-muted/50 border border-border rounded-lg p-4 mb-8 flex items-center justify-center gap-3">
+                    <Loader2 className="w-5 h-5 animate-spin text-primary" />
+                    <span className="text-sm text-muted-foreground">
+                      Creating your personalized storybook — this page will update automatically, or check your email in a few minutes.
+                    </span>
+                  </div>
+                )}
 
                 {orderData?.customer_email && orderData.customer_email !== 'confirmed' && (
                   <div className="bg-muted/50 rounded-lg p-6 mb-8 text-left">

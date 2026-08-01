@@ -44,6 +44,7 @@ export async function GET(request) {
       currency: order.currency,
       created_at: order.created_at,
       session_id: order.session_id,
+      pdf_url: order.pdf_url || null,
     });
   } catch (error) {
     console.error('Order status error:', error);
