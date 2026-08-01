@@ -108,6 +108,7 @@ export async function POST(request) {
           child_name: childName,
           child_age: ageGroup || '',
           story_theme: theme,
+          dedication: dedication || '',
           photo_urls: [],
           created_at: new Date().toISOString(),
         });
