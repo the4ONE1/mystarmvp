@@ -1,10 +1,25 @@
 # Audit: "MyStar — The Master Family Platform" plan
 
 Correction to an earlier pass: this audit initially reviewed `mestar` and
-`mystarmvp`, but `mestar` (mestar.pro, Vite + Shopify) is **not** part of this
-project — it's an unrelated repo that happens to share the "star" substring.
-The actual three branches described in the plan are the repos whose names
-begin with "MyStar":
+`mystarmvp`, and initially called `mestar` "unrelated." Per the repo owner:
+`mestar` (mestar.pro, Vite + Shopify) is the original React build of the
+storybook product, and `mystarmvp` — deployed to `mystarstories.app` — is an
+intentional from-scratch rebuild of it in Next.js, done specifically to get
+better SEO than the Vite SPA could deliver. So `mestar` isn't an unrelated
+duplicate; it's the predecessor `mystarmvp` was rebuilt from. It still isn't
+one of the three branches this master plan unifies, though — that's
+`mystarmvp` (as "Stories"), going forward on its own SEO-motivated stack.
+Whether `mestar` stays live as a fallback or gets retired once `mystarmvp` is
+confirmed live on `mystarstories.app` is a decision for the owner, not
+something this plan addresses.
+
+All data in any of these repos/Supabase projects today is the owner's own
+test data from development — there are no real customers yet, so the
+child-data-compliance point below is a "before real customers exist"
+item, not an active exposure.
+
+The actual three branches described in the master plan are the repos whose
+names begin with "MyStar":
 
 | Plan's name | Repo | Stack | State (from code, not docs) |
 | --- | --- | --- | --- |
