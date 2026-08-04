@@ -1,127 +1,139 @@
 # Audit: "MyStar — The Master Family Platform" plan
 
-Reviewed against what actually exists in the two connected repos:
-`the4ONE1/mestar` (live at mestar.pro — Vite + React 18 + Shopify Storefront API +
-Stripe (embedded) + Supabase/Deno edge functions, with a working
-`pending_payment → queued → generating_story → generating_images → assembling_pdf → complete`
-order pipeline and an admin payments dashboard) and `the4ONE1/mystarmvp`
-(a *second*, separate implementation of the same storybook product — Next.js 15,
-originally MongoDB, migrated to a different Supabase project on 2026-07-02, direct
-Stripe Checkout, AWS S3 uploads — with no vault, album, print, or merch code anywhere
-in it).
+Correction to an earlier pass: this audit initially reviewed `mestar` and
+`mystarmvp`, but `mestar` (mestar.pro, Vite + Shopify) is **not** part of this
+project — it's an unrelated repo that happens to share the "star" substring.
+The actual three branches described in the plan are the repos whose names
+begin with "MyStar":
+
+| Plan's name | Repo | Stack | State (from code, not docs) |
+| --- | --- | --- | --- |
+| MyStar Stories (Storybook) | `mystarmvp` | Next.js 15, own Supabase project (`ktkebsvoqbxsirgluxeo`), direct Stripe Checkout, AWS S3 uploads | Live-shaped: real checkout/webhook/order routes, no vault or print code in it |
+| MyStar Storage (Vault) | `my-star-storage` | TanStack Start + React 19, own Supabase project (`wqnpskxkhdxntbrpllco`) | Furthest along: real schema (`profiles`, `families`, `family_members`, `albums`, `media_files`), RLS enabled, working dashboard queries against real tables |
+| MyStarSolutions (Print) | `mystarsolutions` | TanStack Start + React 19, **no Supabase wired in** | UI scaffold only: real routes (cart/checkout/design/library/orders/plans/storage/investors/welcome-gift) but backed entirely by `mock-products.ts` and a `mockAdapter`; `subscription.ts`'s `readPlan()/savePlan()` are explicitly placeholder, and `print-providers.ts` has a stubbed (unimplemented) Printful adapter |
+
+There's also a fourth repo, `MyStarPhotoStorage`, which is an empty stub (one
+commit, a 20-byte README, no code) — almost certainly an abandoned first
+attempt at the vault repo, superseded by `my-star-storage`. Worth archiving
+or deleting so nobody (human or agent) mistakes it for the real one, which is
+exactly the mistake this audit made on its first pass.
 
 ## Opinion
 
-The vision is good and the customer-facing story is genuinely strong: one free vault
-as the hook, two paid branches (storybook, print) as the upsell, storage as the reward
-for using both. The design-system and security instincts (shared tokens, RLS scoped
-per family, roles in a separate table) are correct. But the plan's central premise —
-"you already have three branded apps, we're just tying them together" — doesn't match
-what's actually in this account. Of the two repos in scope, *both* are competing
-implementations of the storybook product on incompatible stacks, not complementary
-branches. There's no vault ("MyStar Storage") or print ("MyStarSolutions") codebase
-visible here to verify. Before committing to Stage 0 (a brand-new Supabase project)
-this needs an honest asset inventory and a migration plan for the *existing* live
-Stripe/Shopify order pipeline in `mestar` — otherwise "connect three apps" quietly
-becomes "rebuild three apps," which is a much bigger and riskier project than the plan
-presents.
+The vision is good and the customer-facing story is genuinely strong: one
+free vault as the hook, two paid branches as the upsell, storage as the
+reward for using both. What's genuinely encouraging, now that I've looked at
+the actual code: the plan isn't just a slide deck — the 3-branch entitlement
+model (`subscription.ts` in `mystarsolutions`) and a real per-user vault
+schema (`my-star-storage`) already exist as working prototypes, and two of
+the three branches already share the exact stack (TanStack Start + React 19)
+the plan proposes for the master app. That's a much better starting position
+than "three unrelated apps to be duct-taped together."
+
+The real risk isn't the vision, it's the gap between "three branches, same
+brand" and what Stage 0–4 actually requires: two of the three repos each run
+their *own* Supabase project already, Storage's current RLS model can't
+actually do family-sharing yet (see below), Print has no backend at all, and
+Stories is the only one on a different frontend framework entirely. None of
+that is fatal, but the plan's "10 minutes to connect a database" framing
+undersells it substantially.
 
 ## Strong points
 
-- **The tree metaphor is a real growth mechanic, not just marketing copy.** Free vault
-  as the lead magnet, storage upgrades gated behind using *both* paid branches,
-  rewards exactly the cross-sell behavior that increases lifetime value.
-- **Design-token discipline.** Reusing the same navy/gold/cream oklch values and
-  banning hardcoded colors across sub-apps sets up one real shared design system
-  instead of three reskins.
-- **Blur-and-lock over hide.** Showing gated features "visible but blurred with a
-  gold lock" is a proven SaaS conversion pattern — the catalog sells itself.
-- **Correct Supabase security instincts.** RLS on every table scoped by family, and
-  roles kept in a separate `user_roles` table rather than on `profiles`, specifically
-  avoids the classic privilege-escalation mistake with Supabase RLS. Entitlements
-  are (correctly) specified as server-side-only checks.
-- **Exit-safety section is unusually mature** for this kind of plan: plain SQL
-  migrations only, one internal data-access layer, swappable storage/auth adapters,
-  nightly backups, one-click export. Treats vendor lock-in as a first-class design
-  constraint instead of an afterthought.
-- **Owner keeps their own Supabase account/billing** rather than routing through a
-  managed cloud — the right call for a real business with paying customers.
-- **Sensible macro-sequencing**: entitlements/UI (Stages 1-4) before real payments
-  and fulfillment (Stage 5) — don't wire live money movement until the paywall and
-  catalog are real.
+- **The entitlement model is already real code, not just a diagram.**
+  `mystarsolutions/src/lib/subscription.ts` already encodes the exact
+  3-branch/level structure from the plan (storage unlocks only when both
+  other branches are active), data-driven so only `readPlan()`/`savePlan()`
+  need to change to hit a real API. This is a strong foundation to build
+  Stage 3 on rather than a green field.
+- **Two of three branches already share the target stack.** `my-star-storage`
+  and `mystarsolutions` are both TanStack Start + React 19 + shadcn/ui
+  already — the plan's stack choice is consolidation, not a new, fourth
+  stack, for two-thirds of the family.
+- **The vault schema is further along than the plan lets on, in a good way.**
+  `my-star-storage` has real tables (`profiles`, `families`, `family_members`,
+  `albums`, `media_files`) with RLS already enabled and a working dashboard
+  querying live Supabase data — a genuinely usable root for the tree.
+- **The print-provider abstraction is designed correctly even as a mock.**
+  `print-providers.ts`'s adapter interface (mock/Printful/etc. behind one
+  contract) means swapping in a real fulfillment vendor later is additive,
+  not a rewrite.
+- **Design-token discipline** — shared navy/gold/cream oklch values, no
+  hardcoded colors — is already visible in the `mystarsolutions` asset/style
+  setup, not just described in the plan.
+- **Correct high-level security instinct**: the plan calls for RLS scoped by
+  family with roles in a separate table — the right target architecture,
+  even though the current `my-star-storage` migrations don't fully implement
+  it yet (see downfalls).
 
 ## Downfalls and recommended fixes
 
-- **Unverified "three existing apps" premise.** Of the two repos actually connected
-  here, both are storybook implementations (`mestar`: Vite/Shopify/Supabase, live in
-  production; `mystarmvp`: Next.js/Mongo→Supabase/S3), not complementary vault +
-  storybook + print branches. Grepping `mystarmvp` for vault/album/print/merch terms
-  turns up nothing but an unrelated shadcn calendar component.
-  **Fix:** before Stage 0, do a real inventory — confirm the vault and print
-  codebases exist, what stack/state they're in, and produce an explicit plan for
-  reconciling the two *existing* storybook builds (which one is canonical, which one
-  is retired) instead of treating all three as settled, connectable branches.
+- **Stage 0 undersells the real migration work.** Two Supabase projects
+  already exist and already hold real schema/data: Stories on
+  `ktkebsvoqbxsirgluxeo`, Storage on `wqnpskxkhdxntbrpllco`. "Create one new
+  project, connect it, I build the schema" doesn't address what happens to
+  data/users already in the other two.
+  **Fix:** before Stage 0, decide per-branch whether its existing Supabase
+  project becomes the shared one, gets migrated into a new one, or is kept
+  and federated with cross-project reads. Whichever you pick, write down the
+  cutover steps for existing rows (profiles, albums, orders) before doing it.
 
-- **A fourth stack, not a unification.** The plan proposes TanStack Start (React 19)
-  for the new master app, on top of Vite+Shopify (`mestar`) and Next.js+Mongo/Supabase
-  (`mystarmvp`). That's stack proliferation, not consolidation.
-  **Fix:** pick one frontend stack for the long-lived master app and fold branches in
-  as routes/modules of it. Given `mestar` is already live at mestar.pro with a working
-  Stripe/Supabase/edge-function order pipeline and an admin dashboard, seriously weigh
-  extending it over a from-scratch rewrite.
+- **Current vault RLS is scoped by individual owner, not by family, despite
+  a `families`/`family_members` schema already existing.** Every policy in
+  `my-star-storage`'s migration (`own_profile_all`, `own_family_all`,
+  `own_member_all`, `own_album_all`, `own_media_all`) checks
+  `auth.uid() = owner_id`. That means today, a second family member cannot
+  see another member's albums/photos at all — there's no family-scoped
+  policy yet, only single-owner scoping.
+  **Fix:** this needs an actual RLS redesign (policies that check membership
+  in the row's `family_id` via `family_members`, not just row ownership)
+  before "family sharing" from the plan can work — treat it as real schema
+  work in Stage 2, not something that falls out of "connect the database."
 
-- **New Supabase project abandons a live production backend with no migration plan.**
-  `mestar`'s current Supabase project has real orders, Stripe webhooks, and an admin
-  payments dashboard (`payment_events`, `storybook_orders` state machine) in
-  production today. The plan's Stage 0 creates a brand-new "MyStar Master" project
-  with no mention of migrating or dual-writing this data.
-  **Fix:** add an explicit cutover plan (freeze/migrate/verify, or dual-write during
-  transition) before touching the existing Supabase project, and decide whether the
-  new project *replaces* it or federates with it.
+- **Print (MyStarSolutions) is far earlier-stage than the plan's feature
+  table implies.** "Products, design studio, cart, checkout, orders, plans,
+  storage, investors, welcome-gift" reads like a shipped feature list; in
+  the code it's UI routes over `mock-products.ts` and a `mockAdapter` with
+  an explicitly unimplemented Printful integration and no Supabase
+  connection at all.
+  **Fix:** scope Stage 4's Print work as "wire real data behind an existing,
+  well-designed mock," not "connect an existing feature" — budget for actual
+  Printful/print-vendor integration and backend wiring, not just UI polish.
 
-- **Shopify's role is dropped without discussion.** `mestar`'s cart/checkout today
-  goes through the Shopify Storefront API (`cartStore.ts`, `lib/shopify.ts`); the new
-  plan describes membership/entitlements/checkout purely via Supabase + Stripe.
-  **Fix:** explicitly decide whether Shopify stays (arguably a better fit for
-  print/merch fulfillment specifically) or is dropped, and document how storybook
-  checkout interoperates with the new entitlement paywall either way.
+- **Stories is the one branch on a different frontend stack**, and the plan
+  doesn't say how it joins a TanStack Start master shell — full rewrite,
+  iframe/embed, reverse-proxied subdomain, or module federation are very
+  different amounts of work and the plan is silent on which.
+  **Fix:** make an explicit architectural call for Stories specifically
+  (rewrite vs. embed vs. proxy) before Stage 4, since it's the one branch
+  that can't just be "folded in" the way Storage and Solutions can.
 
-- **No estimates, no acceptance criteria.** "Build 1 delivers Stages 1–4" has no
-  time/cost per stage, and an investor-pitch page is embedded inside what's otherwise
-  a technical architecture doc.
-  **Fix:** break each stage into demo-able milestones with a rough effort estimate
-  and a pass/fail acceptance test; keep the investor page as a Stage 1 content
-  deliverable, not part of the architecture.
+- **Duplicate/abandoned storage repo (`MyStarPhotoStorage`) creates exactly
+  the ambiguity this audit's first pass fell into.**
+  **Fix:** archive or delete `MyStarPhotoStorage` (or add a one-line README
+  pointing to `my-star-storage`) so it's unambiguous which repo is canonical
+  going forward.
 
-- **Children's-data compliance is a slogan, not a plan.** "Privacy-first, no ads to
-  kids" is stated as a value, but combining photo albums (of children) from three
-  apps into one shared database raises real COPPA/GDPR-K/retention obligations that
-  aren't addressed with any concrete mechanism.
-  **Fix:** add a real compliance pass before Stage 2 ships — parental consent flow,
-  explicit data retention/deletion SLAs, and moderation for uploaded photos — likely
-  with legal review given this stores minors' images.
+- **No estimates, no acceptance criteria.** "Build 1 delivers Stages 1–4"
+  has no time/cost per stage, and an investor-pitch page is embedded inside
+  what's otherwise a technical architecture doc.
+  **Fix:** break each stage into demo-able milestones with a rough effort
+  estimate and a pass/fail acceptance test; keep the investor page as a
+  Stage 1 content deliverable, not part of the architecture.
 
-- **Vague grace-period mechanics for a destructive action.** "Read-only with a clear
-  grace period," "repeated warning emails" — neither the period length nor the
-  warning cadence is specified, and this gates whether a family's photos become
-  inaccessible.
-  **Fix:** specify an exact grace-period length and warning-email schedule, and
-  guarantee photos are only ever access-locked automatically, never hard-deleted,
-  until an explicit user-confirmed deletion step.
+- **Children's-data compliance is a slogan, not a plan.** "Privacy-first, no
+  ads to kids" is stated as a value, but merging photo albums (of children)
+  from Stories and Storage into one shared database raises real
+  COPPA/GDPR-K/retention obligations with no concrete mechanism described.
+  **Fix:** add a real compliance pass before Stage 2 ships — parental
+  consent flow, explicit data retention/deletion SLAs, moderation for
+  uploaded photos — likely with legal review given this stores minors'
+  images across what are currently two separately-secured databases.
 
-- **No mention of the existing test suite surviving the rebuild.** `mestar` already
-  has Vitest + Playwright + lint in CI; the plan doesn't say whether a TanStack Start
-  rewrite keeps, ports, or drops that coverage.
-  **Fix:** make carrying forward (or deliberately replacing) the existing test suite
-  an explicit Stage 1 task, so regressions on the live storefront aren't shipped
-  silently.
-
-- **The slow-generation background-job convention isn't mentioned.** `mestar`'s edge
-  functions fire generation via `EdgeRuntime.waitUntil(...)` specifically to dodge
-  Stripe's ~10s webhook timeout (a real incident previously fixed this way per
-  `.lovable/plan/`). The new plan's entitlement/server-check architecture doesn't
-  say whether this convention is preserved when storybook generation moves under the
-  master app.
-  **Fix:** explicitly carry this convention forward (or its equivalent in the new
-  stack) when folding the generation pipeline into the master app's server checks —
-  reintroducing an `await` here is exactly how the original timeout bug came back.
+- **Vague grace-period mechanics for a destructive action.** "Read-only with
+  a clear grace period," "repeated warning emails" — neither the period
+  length nor the warning cadence is specified, and this gates whether a
+  family's photos in `my-star-storage` become inaccessible.
+  **Fix:** specify an exact grace-period length and warning-email schedule,
+  and guarantee photos are only ever access-locked automatically, never
+  hard-deleted, until an explicit user-confirmed deletion step.
