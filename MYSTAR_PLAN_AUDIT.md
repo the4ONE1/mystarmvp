@@ -9,9 +9,14 @@ better SEO than the Vite SPA could deliver. So `mestar` isn't an unrelated
 duplicate; it's the predecessor `mystarmvp` was rebuilt from. It still isn't
 one of the three branches this master plan unifies, though — that's
 `mystarmvp` (as "Stories"), going forward on its own SEO-motivated stack.
-Whether `mestar` stays live as a fallback or gets retired once `mystarmvp` is
-confirmed live on `mystarstories.app` is a decision for the owner, not
-something this plan addresses.
+
+Per the owner: `mystarstories.app` (`mystarmvp`) is the current live,
+revenue-generating site today, and is intended to keep running and earning
+right up until the full 3-branch platform is built and ready for real
+customers — at which point the domain/URL strategy for all three branches
+(and the master app itself) gets revisited together. So `mestar.pro` is the
+retired predecessor, not a fallback to keep maintaining in parallel, and
+nothing in Stage 0–4 should assume a domain cutover is needed before then.
 
 All data in any of these repos/Supabase projects today is the owner's own
 test data from development — there are no real customers yet, so the
